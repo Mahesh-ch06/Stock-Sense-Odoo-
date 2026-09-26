@@ -1,7 +1,19 @@
-// Warehouses & Locations Management
+// Warehouses & Locations Management with Lucide icons
 import { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import API from '../api';
+import {
+  Building2,
+  MapPin,
+  Search,
+  RefreshCw,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Layers,
+  ArrowRight,
+} from 'lucide-react';
 
 export default function Warehouses() {
   const [warehouses, setWarehouses] = useState([]);
@@ -144,16 +156,24 @@ export default function Warehouses() {
       <div className="page-header">
         <div>
           <div className="page-title">Warehouses & Locations</div>
-          <div className="page-sub">Manage facilities, storage zones, and internal locations</div>
+          <div className="page-sub">Manage physical facilities, storage zones, and internal bins</div>
         </div>
-        <button id="add-warehouse-btn" className="btn btn-primary" onClick={openAddWh}>
-          ＋ Add Warehouse
+        <button
+          id="add-warehouse-btn"
+          className="btn btn-primary"
+          onClick={openAddWh}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
+          <Plus size={16} strokeWidth={2.5} />
+          <span>Add Warehouse</span>
         </button>
       </div>
 
       <div className="filter-bar">
-        <div className="search-box" style={{ maxWidth: 300 }}>
-          <span className="search-icon">🔍</span>
+        <div className="search-box" style={{ maxWidth: 300, display: 'flex', alignItems: 'center' }}>
+          <span className="search-icon" style={{ display: 'flex', alignItems: 'center' }}>
+            <Search size={15} strokeWidth={2} style={{ color: 'var(--text-muted)' }} />
+          </span>
           <input
             id="warehouse-search"
             placeholder="Search warehouse name or address…"
@@ -161,8 +181,13 @@ export default function Warehouses() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={fetchWarehouses}>
-          ↻ Refresh
+        <button
+          className="btn btn-ghost btn-sm"
+          onClick={fetchWarehouses}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
+          <RefreshCw size={13} />
+          <span>Refresh</span>
         </button>
       </div>
 
@@ -173,15 +198,18 @@ export default function Warehouses() {
           {/* Warehouse Table */}
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="fw-600 text-head" style={{ fontSize: 15 }}>Warehouses ({filtered.length})</span>
+              <span className="fw-600 text-head" style={{ fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <Building2 size={18} style={{ color: 'var(--primary)' }} />
+                Warehouses ({filtered.length})
+              </span>
             </div>
             <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Name</th>
+                    <th>Facility Name</th>
                     <th>Address</th>
-                    <th>Locations</th>
+                    <th>Sub-Locations</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -189,8 +217,10 @@ export default function Warehouses() {
                   {filtered.length === 0 && (
                     <tr>
                       <td colSpan={4} className="empty-state">
-                        <div className="empty-icon">🏢</div>
-                        <div className="empty-text">No warehouses found</div>
+                        <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center' }}>
+                          <Building2 size={36} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                        </div>
+                        <div className="empty-text">No warehouses configured yet</div>
                       </td>
                     </tr>
                   )}
@@ -205,13 +235,14 @@ export default function Warehouses() {
                     >
                       <td className="fw-600 text-head">
                         <div className="flex-center" style={{ gap: 8, justifyContent: 'flex-start' }}>
-                          <span>🏢</span>
+                          <Building2 size={16} style={{ color: 'var(--primary)', flexShrink: 0 }} />
                           <span>{w.name}</span>
                         </div>
                       </td>
                       <td className="text-muted">{w.address || '—'}</td>
                       <td>
-                        <span className="badge badge-draft" style={{ fontSize: 12 }}>
+                        <span className="badge badge-draft" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          <Layers size={11} />
                           {w.location_count || 0} locations
                         </span>
                       </td>
@@ -220,16 +251,18 @@ export default function Warehouses() {
                           <button
                             className="btn btn-ghost btn-sm"
                             onClick={() => handleSelectWarehouse(w)}
-                            style={{ fontSize: 11 }}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11 }}
                           >
-                            Locations →
+                            <span>Locations</span>
+                            <ArrowRight size={12} />
                           </button>
                           <button
                             className="btn-icon"
                             onClick={() => openEditWh(w)}
                             title="Edit Warehouse"
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           >
-                            ✏️
+                            <Pencil size={14} />
                           </button>
                         </div>
                       </td>
@@ -253,11 +286,12 @@ export default function Warehouses() {
                 }}
               >
                 <div>
-                  <div className="fw-600 text-head" style={{ fontSize: 15 }}>
-                    Locations in {selectedWh.name}
+                  <div className="fw-600 text-head" style={{ fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <MapPin size={16} style={{ color: 'var(--primary)' }} />
+                    <span>Locations in {selectedWh.name}</span>
                   </div>
-                  <div className="text-muted" style={{ fontSize: 12 }}>
-                    {selectedWh.address || 'No address set'}
+                  <div className="text-muted" style={{ fontSize: 12, marginTop: 2 }}>
+                    {selectedWh.address || 'Primary Facility'}
                   </div>
                 </div>
                 <div className="flex-center" style={{ gap: 8 }}>
@@ -265,15 +299,18 @@ export default function Warehouses() {
                     id="add-location-btn"
                     className="btn btn-primary btn-sm"
                     onClick={openAddLoc}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
                   >
-                    ＋ Add Location
+                    <Plus size={14} strokeWidth={2.5} />
+                    <span>Add Location</span>
                   </button>
                   <button
                     className="btn-icon"
                     onClick={() => setSelectedWh(null)}
                     title="Close locations panel"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
-                    ✕
+                    <X size={15} />
                   </button>
                 </div>
               </div>
@@ -285,7 +322,7 @@ export default function Warehouses() {
                   <table>
                     <thead>
                       <tr>
-                        <th>Location Name</th>
+                        <th>Location / Bin</th>
                         <th>Created</th>
                         <th>Actions</th>
                       </tr>
@@ -294,8 +331,10 @@ export default function Warehouses() {
                       {locations.length === 0 && (
                         <tr>
                           <td colSpan={3} className="empty-state">
-                            <div className="empty-icon">📍</div>
-                            <div className="empty-text">No locations configured for this warehouse</div>
+                            <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center' }}>
+                              <MapPin size={32} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                            </div>
+                            <div className="empty-text">No locations created for this warehouse</div>
                           </td>
                         </tr>
                       )}
@@ -303,7 +342,7 @@ export default function Warehouses() {
                         <tr key={loc.id}>
                           <td className="fw-600 text-head">
                             <div className="flex-center" style={{ gap: 8, justifyContent: 'flex-start' }}>
-                              <span>📍</span>
+                              <MapPin size={15} style={{ color: 'var(--primary)', flexShrink: 0 }} />
                               <span>{loc.name}</span>
                             </div>
                           </td>
@@ -316,16 +355,17 @@ export default function Warehouses() {
                                 className="btn-icon"
                                 onClick={() => openEditLoc(loc)}
                                 title="Edit Location"
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                               >
-                                ✏️
+                                <Pencil size={14} />
                               </button>
                               <button
                                 className="btn-icon"
                                 onClick={() => handleDeleteLoc(loc.id)}
                                 title="Delete Location"
-                                style={{ color: 'var(--red)' }}
+                                style={{ color: 'var(--red)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                               >
-                                🗑️
+                                <Trash2 size={14} />
                               </button>
                             </div>
                           </td>
@@ -346,10 +386,10 @@ export default function Warehouses() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title">
-                {editingWh ? 'Edit Warehouse' : 'Add Warehouse'}
+                {editingWh ? 'Edit Warehouse' : 'Add New Warehouse'}
               </div>
               <button className="btn-icon" onClick={() => setShowWhModal(false)}>
-                ✕
+                <X size={16} />
               </button>
             </div>
             <form onSubmit={handleSaveWh}>
@@ -366,7 +406,7 @@ export default function Warehouses() {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Address / Notes</label>
+                  <label className="form-label">Physical Address / Notes</label>
                   <input
                     id="warehouse-address"
                     className="form-control"
@@ -395,7 +435,7 @@ export default function Warehouses() {
                       <span className="spinner" /> Saving…
                     </>
                   ) : editingWh ? (
-                    'Update'
+                    'Update Warehouse'
                   ) : (
                     'Create Warehouse'
                   )}
@@ -415,7 +455,7 @@ export default function Warehouses() {
                 {editingLoc ? 'Edit Location' : `Add Location to ${selectedWh?.name}`}
               </div>
               <button className="btn-icon" onClick={() => setShowLocModal(false)}>
-                ✕
+                <X size={16} />
               </button>
             </div>
             <form onSubmit={handleSaveLoc}>
@@ -451,7 +491,7 @@ export default function Warehouses() {
                       <span className="spinner" /> Saving…
                     </>
                   ) : editingLoc ? (
-                    'Update'
+                    'Update Location'
                   ) : (
                     'Add Location'
                   )}
