@@ -1,7 +1,19 @@
-// Inventory Adjustments & Stock Reconciliation
+// Inventory Adjustments & Stock Reconciliation with Lucide icons
 import { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import API from '../api';
+import {
+  Scale,
+  Search,
+  RefreshCw,
+  Plus,
+  MapPin,
+  TrendingUp,
+  TrendingDown,
+  Equal,
+  X,
+  ClipboardCheck,
+} from 'lucide-react';
 
 export default function Adjustments() {
   const [adjustments, setAdjustments] = useState([]);
@@ -109,16 +121,24 @@ export default function Adjustments() {
       <div className="page-header">
         <div>
           <div className="page-title">Inventory Adjustments</div>
-          <div className="page-sub">Cycle counts, discrepancy reconciliation, and stock corrections</div>
+          <div className="page-sub">Physical cycle counts, discrepancy reconciliation, and stock corrections</div>
         </div>
-        <button id="new-adjustment-btn" className="btn btn-primary" onClick={openNewAdjustment}>
-          ＋ Record Adjustment
+        <button
+          id="new-adjustment-btn"
+          className="btn btn-primary"
+          onClick={openNewAdjustment}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
+          <Plus size={16} strokeWidth={2.5} />
+          <span>Record Adjustment</span>
         </button>
       </div>
 
       <div className="filter-bar">
-        <div className="search-box" style={{ maxWidth: 300 }}>
-          <span className="search-icon">🔍</span>
+        <div className="search-box" style={{ maxWidth: 300, display: 'flex', alignItems: 'center' }}>
+          <span className="search-icon" style={{ display: 'flex', alignItems: 'center' }}>
+            <Search size={15} strokeWidth={2} style={{ color: 'var(--text-muted)' }} />
+          </span>
           <input
             id="adjustment-search"
             placeholder="Search product, SKU, or location…"
@@ -126,8 +146,13 @@ export default function Adjustments() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={fetchAdjustments}>
-          ↻ Refresh
+        <button
+          className="btn btn-ghost btn-sm"
+          onClick={fetchAdjustments}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
+          <RefreshCw size={13} />
+          <span>Refresh</span>
         </button>
       </div>
 
@@ -144,7 +169,7 @@ export default function Adjustments() {
                 <th>Location</th>
                 <th>Recorded Stock</th>
                 <th>Counted Stock</th>
-                <th>Discrepancy (Delta)</th>
+                <th>Variance (Delta)</th>
                 <th>Adjusted By</th>
               </tr>
             </thead>
@@ -152,8 +177,10 @@ export default function Adjustments() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={8} className="empty-state">
-                    <div className="empty-icon">⚖️</div>
-                    <div className="empty-text">No inventory adjustments found</div>
+                    <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center' }}>
+                      <Scale size={36} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                    </div>
+                    <div className="empty-text">No inventory adjustments recorded</div>
                   </td>
                 </tr>
               )}
@@ -167,24 +194,55 @@ export default function Adjustments() {
                     <td className="fw-600 text-head">{a.product_name}</td>
                     <td className="td-mono">{a.sku}</td>
                     <td>
-                      <span className="badge badge-draft">📍 {a.location_name}</span>
+                      <span className="badge badge-draft" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        <MapPin size={11} />
+                        {a.location_name}
+                      </span>
                     </td>
                     <td className="text-muted">{a.system_qty_at_time ?? 0}</td>
                     <td className="fw-600 text-head">{a.counted_qty}</td>
                     <td>
                       {delta > 0 ? (
-                        <span className="badge badge-done" style={{ color: 'var(--green)' }}>
+                        <span
+                          className="badge badge-done"
+                          style={{
+                            color: 'var(--green)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          <TrendingUp size={12} />
                           +{delta} units (gain)
                         </span>
                       ) : delta < 0 ? (
-                        <span className="badge badge-cancelled" style={{ color: 'var(--red)' }}>
+                        <span
+                          className="badge badge-cancelled"
+                          style={{
+                            color: 'var(--red)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          <TrendingDown size={12} />
                           {delta} units (loss)
                         </span>
                       ) : (
-                        <span className="badge badge-draft">0 (matched)</span>
+                        <span
+                          className="badge badge-draft"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          <Equal size={12} />
+                          0 (exact match)
+                        </span>
                       )}
                     </td>
-                    <td className="text-muted">{a.created_by_name || 'System'}</td>
+                    <td className="text-muted">{a.created_by_name || 'System Staff'}</td>
                   </tr>
                 );
               })}
@@ -198,15 +256,18 @@ export default function Adjustments() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <div className="modal-title">Record Physical Stock Adjustment</div>
+              <div className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <ClipboardCheck size={18} style={{ color: 'var(--primary)' }} />
+                <span>Physical Stock Count Reconciliation</span>
+              </div>
               <button className="btn-icon" onClick={() => setShowModal(false)}>
-                ✕
+                <X size={16} />
               </button>
             </div>
             <form onSubmit={handleCreate}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 16 }}>
                 <div className="form-group">
-                  <label className="form-label">Product *</label>
+                  <label className="form-label">Product Item *</label>
                   <select
                     id="adjustment-product"
                     className="form-control"
@@ -214,7 +275,7 @@ export default function Adjustments() {
                     onChange={(e) => setForm((f) => ({ ...f, product_id: e.target.value }))}
                     required
                   >
-                    <option value="">Select product…</option>
+                    <option value="">Select product item…</option>
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.name} ({p.sku}) — Total stock: {p.total_stock ?? p.on_hand_stock ?? 0}
@@ -224,7 +285,7 @@ export default function Adjustments() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Location *</label>
+                  <label className="form-label">Location / Bin *</label>
                   <select
                     id="adjustment-location"
                     className="form-control"
@@ -249,13 +310,13 @@ export default function Adjustments() {
                     type="number"
                     min="0"
                     className="form-control"
-                    placeholder="Enter actual physical count (e.g. 25)"
+                    placeholder="Enter physical count (e.g. 50)"
                     value={form.counted_qty}
                     onChange={(e) => setForm((f) => ({ ...f, counted_qty: e.target.value }))}
                     required
                   />
                   <div className="text-muted" style={{ fontSize: 11.5, marginTop: 4 }}>
-                    Note: An audit record and a corresponding stock ledger movement will be logged automatically.
+                    An immutable entry in <code>stock_ledger</code> will be created, and <code>stock_levels</code> will be updated atomically.
                   </div>
                 </div>
               </div>
@@ -279,7 +340,7 @@ export default function Adjustments() {
                       <span className="spinner" /> Reconciling…
                     </>
                   ) : (
-                    'Apply Adjustment'
+                    'Reconcile Stock'
                   )}
                 </button>
               </div>

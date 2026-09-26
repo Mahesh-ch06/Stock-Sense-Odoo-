@@ -33,9 +33,11 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 StockSense API running on port ${PORT}`);
-  startAlertCron();
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`🚀 StockSense API running on port ${PORT}`);
+    startAlertCron();
+  });
+}
 
 module.exports = app;
