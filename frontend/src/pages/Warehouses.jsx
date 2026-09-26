@@ -176,50 +176,59 @@ export default function Warehouses() {
       <PageHeader
         title="Warehouses & Storage Facilities"
         description="Configure physical distribution hubs, storage racks, and bin zones"
-      >
-        <Button id="add-warehouse-btn" onClick={openAddWh}>
-          <Plus size={14} strokeWidth={2.5} />
-          <span>Add Warehouse</span>
-        </Button>
-      </PageHeader>
+        actions={
+          <Button
+            id="add-warehouse-btn"
+            onClick={openAddWh}
+            className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium h-9 px-4 text-xs transition-colors"
+          >
+            <Plus size={14} strokeWidth={2.5} className="mr-1.5" />
+            <span>Add Warehouse</span>
+          </Button>
+        }
+      />
 
       {/* Inline Feedback Banner */}
       {feedback && (
         <div
-          className={`mb-4 flex items-center justify-between p-3 rounded-lg border text-xs ${
+          className={`mb-6 flex items-center justify-between p-4 rounded-xl border text-xs sm:text-sm ${
             feedback.type === 'success'
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
               : 'bg-rose-500/10 border-rose-500/20 text-rose-300'
           }`}
         >
-          <div className="flex items-center gap-2">
-            {feedback.type === 'success' ? <CheckCircle2 size={15} /> : <AlertCircle size={15} />}
+          <div className="flex items-center gap-2.5">
+            {feedback.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
             <span>{feedback.message}</span>
           </div>
           <button
             onClick={() => setFeedback(null)}
             className="text-zinc-400 hover:text-zinc-200"
           >
-            <X size={13} />
+            <X size={14} />
           </button>
         </div>
       )}
 
       {/* Filter / Search Bar */}
-      <div className="filter-bar">
-        <div className="search-box" style={{ maxWidth: 280 }}>
-          <span className="search-icon">
-            <Search size={14} />
-          </span>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+        <div className="relative w-full sm:w-88">
+          <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-500" />
           <input
             id="warehouse-search"
             placeholder="Search facility name or address…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 h-10 text-xs sm:text-sm bg-zinc-900/60 border border-zinc-800 rounded-lg text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-600"
           />
         </div>
-        <Button variant="ghost" size="sm" onClick={fetchWarehouses}>
-          <RefreshCw size={12} />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={fetchWarehouses}
+          className="border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100 h-10 px-4 text-xs transition-colors self-start sm:self-auto rounded-lg"
+        >
+          <RefreshCw size={13} className="mr-1.5 text-zinc-400" />
           <span>Refresh</span>
         </Button>
       </div>
@@ -227,25 +236,25 @@ export default function Warehouses() {
       {loading && <div className="spinner-page" />}
 
       {!loading && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
           {/* Warehouse Table Card */}
           <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 overflow-hidden shadow-xs">
-            <div className="p-4 border-b border-zinc-800/80 flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-200 flex items-center gap-2">
-                <Building2 size={15} className="text-zinc-400" />
+            <div className="p-5 border-b border-zinc-800/80 flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-semibold text-zinc-200 flex items-center gap-2">
+                <Building2 size={16} className="text-zinc-400" />
                 Active Facilities ({filtered.length})
               </span>
-              <span className="text-[11px] text-zinc-500">Click a row to manage zones</span>
+              <span className="text-xs text-zinc-500">Click a row to manage zones</span>
             </div>
 
             <div className="table-wrap border-0 rounded-none shadow-none">
               <table>
                 <thead>
-                  <tr>
-                    <th>Facility</th>
-                    <th>Address</th>
-                    <th>Zones</th>
-                    <th>Actions</th>
+                  <tr className="border-b border-zinc-800/80 bg-zinc-900/60 text-zinc-400 uppercase tracking-wider font-medium text-[11px]">
+                    <th className="py-3.5 px-5">Facility</th>
+                    <th className="py-3.5 px-5">Address</th>
+                    <th className="py-3.5 px-5">Zones</th>
+                    <th className="py-3.5 px-5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
