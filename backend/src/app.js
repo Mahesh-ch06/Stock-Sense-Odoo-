@@ -12,6 +12,7 @@ app.use(express.json());
 app.use('/auth',        require('./routes/auth'));
 app.use('/dashboard',   require('./routes/dashboard'));
 app.use('/products',    require('./routes/products'));
+app.use('/warehouses',  require('./routes/warehouses'));
 app.use('/receipts',    require('./routes/receipts'));
 app.use('/deliveries',  require('./routes/deliveries'));
 app.use('/transfers',   require('./routes/transfers'));
