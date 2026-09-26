@@ -173,23 +173,24 @@ export default function Warehouses() {
 
   return (
     <Layout title="Warehouses">
-      <PageHeader
-        title="Warehouses & Storage Facilities"
-        description="Configure physical distribution hubs, storage racks, and bin zones"
-        actions={
-          <Button
-            id="add-warehouse-btn"
-            onClick={openAddWh}
-            className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium h-9 px-4 text-xs transition-colors"
-          >
-            <Plus size={14} strokeWidth={2.5} className="mr-1.5" />
-            <span>Add Warehouse</span>
-          </Button>
-        }
-      />
+      <div className="space-y-8">
+        <PageHeader
+          title="Warehouses & Storage Facilities"
+          description="Configure physical distribution hubs, storage racks, and bin zones"
+          actions={
+            <Button
+              id="add-warehouse-btn"
+              onClick={openAddWh}
+              className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium h-10 px-4 text-xs transition-colors shadow-sm"
+            >
+              <Plus size={15} strokeWidth={2.5} className="mr-1.5" />
+              <span>Add Warehouse</span>
+            </Button>
+          }
+        />
 
-      {/* Inline Feedback Banner */}
-      {feedback && (
+        {/* Inline Feedback Banner */}
+        {feedback && (
         <div
           className={`mb-6 flex items-center justify-between p-4 rounded-xl border text-xs sm:text-sm ${
             feedback.type === 'success'
@@ -416,12 +417,12 @@ export default function Warehouses() {
               )}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-zinc-800 p-8 flex flex-col items-center justify-center text-center">
-              <div className="h-10 w-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 mb-3">
-                <MapPin size={18} />
+            <div className="rounded-xl border border-dashed border-zinc-800 p-12 min-h-[440px] flex flex-col items-center justify-center text-center bg-zinc-900/20">
+              <div className="h-12 w-12 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-400 mb-4 shadow-sm">
+                <MapPin size={22} />
               </div>
-              <div className="text-xs font-semibold text-zinc-300">No Warehouse Selected</div>
-              <p className="text-[11px] text-zinc-500 mt-1 max-w-xs">
+              <div className="text-sm font-semibold text-zinc-200">No Warehouse Selected</div>
+              <p className="text-xs text-zinc-400 mt-1.5 max-w-sm leading-relaxed">
                 Select a warehouse facility from the table on the left to inspect, create, or modify its internal storage aisles and racks.
               </p>
             </div>
@@ -431,45 +432,78 @@ export default function Warehouses() {
 
       {/* Warehouse Modal */}
       {showWhModal && (
-        <div className="modal-overlay" onClick={() => setShowWhModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title">
-                {editingWh ? 'Edit Facility Details' : 'Add Storage Facility'}
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setShowWhModal(false)}
+        >
+          <div
+            className="w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl p-7 space-y-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-zinc-200">
+                  <Building2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-zinc-100">
+                    {editingWh ? 'Edit Facility Details' : 'Add Storage Facility'}
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Configure distribution center name and postal address
+                  </p>
+                </div>
               </div>
-              <button className="btn-icon" onClick={() => setShowWhModal(false)} style={{ width: 26, height: 26 }}>
-                <X size={14} />
+              <button
+                onClick={() => setShowWhModal(false)}
+                className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleSaveWh}>
-              <div className="space-y-3.5 mb-5">
-                <div className="form-group">
-                  <label className="form-label">Facility / Warehouse Name *</label>
+
+            <form onSubmit={handleSaveWh} className="space-y-5">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-zinc-300">Facility / Warehouse Name *</label>
                   <input
                     id="warehouse-name"
-                    className="form-control"
+                    className="w-full bg-zinc-950/60 border border-zinc-800 rounded-lg px-3.5 text-zinc-100 text-sm h-10 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                     placeholder="e.g. Central Logistics Hub"
                     value={whForm.name}
                     onChange={(e) => setWhForm((f) => ({ ...f, name: e.target.value }))}
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Physical Address</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-zinc-300">Physical Address</label>
                   <input
                     id="warehouse-address"
-                    className="form-control"
+                    className="w-full bg-zinc-950/60 border border-zinc-800 rounded-lg px-3.5 text-zinc-100 text-sm h-10 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                     placeholder="e.g. 100 Industrial Parkway, Sector 4"
                     value={whForm.address}
                     onChange={(e) => setWhForm((f) => ({ ...f, address: e.target.value }))}
                   />
                 </div>
               </div>
-              <div className="modal-footer">
-                <Button type="button" variant="ghost" onClick={() => setShowWhModal(false)}>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowWhModal(false)}
+                  className="text-zinc-400 hover:text-zinc-200 h-10 px-4"
+                >
                   Cancel
                 </Button>
-                <Button id="warehouse-save-btn" type="submit" disabled={whSaving}>
+                <Button
+                  id="warehouse-save-btn"
+                  type="submit"
+                  size="sm"
+                  disabled={whSaving}
+                  className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-xs h-10 px-5 transition-colors shadow-sm"
+                >
                   {whSaving ? 'Saving…' : editingWh ? 'Save Changes' : 'Create Warehouse'}
                 </Button>
               </div>
@@ -480,35 +514,66 @@ export default function Warehouses() {
 
       {/* Location Modal */}
       {showLocModal && (
-        <div className="modal-overlay" onClick={() => setShowLocModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title">
-                {editingLoc ? 'Edit Bin Name' : `Add Bin to ${selectedWh?.name}`}
-              </div>
-              <button className="btn-icon" onClick={() => setShowLocModal(false)} style={{ width: 26, height: 26 }}>
-                <X size={14} />
-              </button>
-            </div>
-            <form onSubmit={handleSaveLoc}>
-              <div className="space-y-3.5 mb-5">
-                <div className="form-group">
-                  <label className="form-label">Storage Bin / Aisle / Zone Name *</label>
-                  <input
-                    id="location-name"
-                    className="form-control"
-                    placeholder="e.g. Aisle 3 - Pallet Rack B"
-                    value={locForm.name}
-                    onChange={(e) => setLocForm((f) => ({ ...f, name: e.target.value }))}
-                    required
-                  />
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setShowLocModal(false)}
+        >
+          <div
+            className="w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl p-7 space-y-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-zinc-200">
+                  <MapPin className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-zinc-100">
+                    {editingLoc ? 'Edit Bin Name' : `Add Bin to ${selectedWh?.name}`}
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Define internal aisle, rack, or bin identifier
+                  </p>
                 </div>
               </div>
-              <div className="modal-footer">
-                <Button type="button" variant="ghost" onClick={() => setShowLocModal(false)}>
+              <button
+                onClick={() => setShowLocModal(false)}
+                className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveLoc} className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-zinc-300">Storage Bin / Aisle / Zone Name *</label>
+                <input
+                  id="location-name"
+                  className="w-full bg-zinc-950/60 border border-zinc-800 rounded-lg px-3.5 text-zinc-100 text-sm h-10 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                  placeholder="e.g. Aisle 3 - Pallet Rack B"
+                  value={locForm.name}
+                  onChange={(e) => setLocForm((f) => ({ ...f, name: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowLocModal(false)}
+                  className="text-zinc-400 hover:text-zinc-200 h-10 px-4"
+                >
                   Cancel
                 </Button>
-                <Button id="location-save-btn" type="submit" disabled={locSaving}>
+                <Button
+                  id="location-save-btn"
+                  type="submit"
+                  size="sm"
+                  disabled={locSaving}
+                  className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-xs h-10 px-5 transition-colors shadow-sm"
+                >
                   {locSaving ? 'Saving…' : editingLoc ? 'Save Changes' : 'Create Location'}
                 </Button>
               </div>
@@ -527,6 +592,7 @@ export default function Warehouses() {
         onConfirm={executeDeleteLocation}
         onCancel={() => setDeleteDialog({ isOpen: false, locId: null, loading: false })}
       />
+      </div>
     </Layout>
   );
 }
