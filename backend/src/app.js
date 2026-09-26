@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const { startAlertCron } = require('./jobs/alertCron');
 
 const app = express();
 
@@ -32,6 +33,9 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 StockSense API running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 StockSense API running on port ${PORT}`);
+  startAlertCron();
+});
 
 module.exports = app;
