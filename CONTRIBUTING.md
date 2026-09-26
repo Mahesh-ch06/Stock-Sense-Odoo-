@@ -1,13 +1,15 @@
 # StockSense — Contribution Guidelines
 
-## ⚡ Core Rule: Commit Every Hour
+## ⚡ Core Rule: Commit After Every Feature or Every 30 Minutes
 Every team member must:
-- ✅ Commit their own code **at least once every 1 hour**
+- ✅ Commit their own code **after completing any feature or sub-task**
+- ✅ Commit **at least once every 30 minutes** even if a feature isn't done yet
 - ✅ Use **meaningful commit messages** (see format below)
-- ✅ Push their changes to the remote repository
+- ✅ Push their changes to the remote repository after every commit
 - ✅ Ensure the **latest working code is always on `main`**
 
 > Individual commits are used to track each member's contribution. Committing infrequently or with vague messages will make your work invisible.
+> **Rule of thumb:** whichever comes first — feature done OR 30 minutes passed → commit + push.
 
 ---
 
