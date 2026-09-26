@@ -1,4 +1,4 @@
-// Warehouses & Locations Management with Lucide icons
+// Warehouses & Locations Management with Shadcn design system & ConfirmDialog
 import { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import API from '../api';
@@ -13,7 +13,12 @@ import {
   X,
   Layers,
   ArrowRight,
+  AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
+import { Button } from '../components/ui/Button';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { PageHeader } from '../components/ui/PageHeader';
 
 export default function Warehouses() {
   const [warehouses, setWarehouses] = useState([]);
@@ -22,6 +27,7 @@ export default function Warehouses() {
   const [selectedWh, setSelectedWh] = useState(null);
   const [locations, setLocations] = useState([]);
   const [locLoading, setLocLoading] = useState(false);
+  const [feedback, setFeedback] = useState(null); // { type: 'success' | 'error', message: string }
 
   // Modals state
   const [showWhModal, setShowWhModal] = useState(false);
@@ -33,6 +39,9 @@ export default function Warehouses() {
   const [editingLoc, setEditingLoc] = useState(null);
   const [locForm, setLocForm] = useState({ name: '' });
   const [locSaving, setLocSaving] = useState(false);
+
+  // Confirm delete dialog state
+  const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, locId: null, loading: false });
 
   const fetchWarehouses = useCallback(async () => {
     setLoading(true);
@@ -90,13 +99,15 @@ export default function Warehouses() {
     try {
       if (editingWh) {
         await API.patch(`/warehouses/${editingWh.id}`, whForm);
+        setFeedback({ type: 'success', message: 'Warehouse updated successfully.' });
       } else {
         await API.post('/warehouses', whForm);
+        setFeedback({ type: 'success', message: 'Warehouse facility created with default location.' });
       }
       setShowWhModal(false);
       fetchWarehouses();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to save warehouse.');
+      setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to save warehouse.' });
     } finally {
       setWhSaving(false);
     }
@@ -122,27 +133,36 @@ export default function Warehouses() {
     try {
       if (editingLoc) {
         await API.patch(`/warehouses/${selectedWh.id}/locations/${editingLoc.id}`, locForm);
+        setFeedback({ type: 'success', message: 'Location bin updated.' });
       } else {
         await API.post(`/warehouses/${selectedWh.id}/locations`, locForm);
+        setFeedback({ type: 'success', message: 'Location added to facility.' });
       }
       setShowLocModal(false);
       fetchLocations(selectedWh.id);
       fetchWarehouses();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to save location.');
+      setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to save location.' });
     } finally {
       setLocSaving(false);
     }
   }
 
-  async function handleDeleteLoc(locId) {
-    if (!confirm('Are you sure you want to delete this location?')) return;
+  async function executeDeleteLocation() {
+    if (!selectedWh || !deleteDialog.locId) return;
+    setDeleteDialog((d) => ({ ...d, loading: true }));
     try {
-      await API.delete(`/warehouses/${selectedWh.id}/locations/${locId}`);
+      await API.delete(`/warehouses/${selectedWh.id}/locations/${deleteDialog.locId}`);
+      setFeedback({ type: 'success', message: 'Location deleted successfully.' });
+      setDeleteDialog({ isOpen: false, locId: null, loading: false });
       fetchLocations(selectedWh.id);
       fetchWarehouses();
     } catch (err) {
-      alert(err.response?.data?.error || 'Cannot delete location.');
+      setDeleteDialog((d) => ({ ...d, loading: false }));
+      setFeedback({
+        type: 'error',
+        message: err.response?.data?.error || 'Cannot delete location — verify if stock exists.',
+      });
     }
   }
 
@@ -153,63 +173,78 @@ export default function Warehouses() {
 
   return (
     <Layout title="Warehouses">
-      <div className="page-header">
-        <div>
-          <div className="page-title">Warehouses & Locations</div>
-          <div className="page-sub">Manage physical facilities, storage zones, and internal bins</div>
-        </div>
-        <button
-          id="add-warehouse-btn"
-          className="btn btn-primary"
-          onClick={openAddWh}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-        >
-          <Plus size={16} strokeWidth={2.5} />
+      <PageHeader
+        title="Warehouses & Storage Facilities"
+        description="Configure physical distribution hubs, storage racks, and bin zones"
+      >
+        <Button id="add-warehouse-btn" onClick={openAddWh}>
+          <Plus size={14} strokeWidth={2.5} />
           <span>Add Warehouse</span>
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
+      {/* Inline Feedback Banner */}
+      {feedback && (
+        <div
+          className={`mb-4 flex items-center justify-between p-3 rounded-lg border text-xs ${
+            feedback.type === 'success'
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
+              : 'bg-rose-500/10 border-rose-500/20 text-rose-300'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {feedback.type === 'success' ? <CheckCircle2 size={15} /> : <AlertCircle size={15} />}
+            <span>{feedback.message}</span>
+          </div>
+          <button
+            onClick={() => setFeedback(null)}
+            className="text-zinc-400 hover:text-zinc-200"
+          >
+            <X size={13} />
+          </button>
+        </div>
+      )}
+
+      {/* Filter / Search Bar */}
       <div className="filter-bar">
-        <div className="search-box" style={{ maxWidth: 300, display: 'flex', alignItems: 'center' }}>
-          <span className="search-icon" style={{ display: 'flex', alignItems: 'center' }}>
-            <Search size={15} strokeWidth={2} style={{ color: 'var(--text-muted)' }} />
+        <div className="search-box" style={{ maxWidth: 280 }}>
+          <span className="search-icon">
+            <Search size={14} />
           </span>
           <input
             id="warehouse-search"
-            placeholder="Search warehouse name or address…"
+            placeholder="Search facility name or address…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button
-          className="btn btn-ghost btn-sm"
-          onClick={fetchWarehouses}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-        >
-          <RefreshCw size={13} />
+        <Button variant="ghost" size="sm" onClick={fetchWarehouses}>
+          <RefreshCw size={12} />
           <span>Refresh</span>
-        </button>
+        </Button>
       </div>
 
       {loading && <div className="spinner-page" />}
 
       {!loading && (
-        <div style={{ display: 'grid', gridTemplateColumns: selectedWh ? '1fr 1fr' : '1fr', gap: 20 }}>
-          {/* Warehouse Table */}
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="fw-600 text-head" style={{ fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <Building2 size={18} style={{ color: 'var(--primary)' }} />
-                Warehouses ({filtered.length})
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+          {/* Warehouse Table Card */}
+          <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 overflow-hidden shadow-xs">
+            <div className="p-4 border-b border-zinc-800/80 flex items-center justify-between">
+              <span className="text-xs font-semibold text-zinc-200 flex items-center gap-2">
+                <Building2 size={15} className="text-zinc-400" />
+                Active Facilities ({filtered.length})
               </span>
+              <span className="text-[11px] text-zinc-500">Click a row to manage zones</span>
             </div>
-            <div className="table-wrap">
+
+            <div className="table-wrap border-0 rounded-none shadow-none">
               <table>
                 <thead>
                   <tr>
-                    <th>Facility Name</th>
+                    <th>Facility</th>
                     <th>Address</th>
-                    <th>Sub-Locations</th>
+                    <th>Zones</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -217,8 +252,8 @@ export default function Warehouses() {
                   {filtered.length === 0 && (
                     <tr>
                       <td colSpan={4} className="empty-state">
-                        <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center' }}>
-                          <Building2 size={36} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                        <div className="empty-icon flex justify-center">
+                          <Building2 size={32} className="text-zinc-600" />
                         </div>
                         <div className="empty-text">No warehouses configured yet</div>
                       </td>
@@ -227,42 +262,44 @@ export default function Warehouses() {
                   {filtered.map((w) => (
                     <tr
                       key={w.id}
-                      style={{
-                        cursor: 'pointer',
-                        background: selectedWh?.id === w.id ? 'var(--bg-hover)' : undefined,
-                      }}
+                      className={`cursor-pointer transition-colors ${
+                        selectedWh?.id === w.id ? 'bg-zinc-800/60' : 'hover:bg-zinc-800/40'
+                      }`}
                       onClick={() => handleSelectWarehouse(w)}
                     >
                       <td className="fw-600 text-head">
-                        <div className="flex-center" style={{ gap: 8, justifyContent: 'flex-start' }}>
-                          <Building2 size={16} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-6 w-6 rounded-md bg-zinc-800 border border-zinc-700/60 flex items-center justify-center shrink-0 text-zinc-300">
+                            <Building2 size={13} />
+                          </div>
                           <span>{w.name}</span>
                         </div>
                       </td>
-                      <td className="text-muted">{w.address || '—'}</td>
+                      <td className="text-muted text-xs truncate max-w-[140px]">{w.address || '—'}</td>
                       <td>
-                        <span className="badge badge-draft" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                          <Layers size={11} />
-                          {w.location_count || 0} locations
+                        <span className="badge badge-draft text-[10.5px]">
+                          <Layers size={10} className="mr-1" />
+                          {w.location_count || 0}
                         </span>
                       </td>
                       <td>
                         <div className="td-actions" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            className="btn btn-ghost btn-sm"
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleSelectWarehouse(w)}
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11 }}
+                            className="h-6 px-2 text-[11px]"
                           >
-                            <span>Locations</span>
-                            <ArrowRight size={12} />
-                          </button>
+                            <span>Bins</span>
+                            <ArrowRight size={11} />
+                          </Button>
                           <button
                             className="btn-icon"
                             onClick={() => openEditWh(w)}
                             title="Edit Warehouse"
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{ width: 26, height: 26 }}
                           >
-                            <Pencil size={14} />
+                            <Pencil size={12} />
                           </button>
                         </div>
                       </td>
@@ -273,44 +310,37 @@ export default function Warehouses() {
             </div>
           </div>
 
-          {/* Locations Panel for Selected Warehouse */}
-          {selectedWh && (
-            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <div
-                style={{
-                  padding: '16px 20px',
-                  borderBottom: '1px solid var(--border)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
+          {/* Locations Sub-Panel for Selected Warehouse */}
+          {selectedWh ? (
+            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 overflow-hidden shadow-xs">
+              <div className="p-4 border-b border-zinc-800/80 flex items-center justify-between">
                 <div>
-                  <div className="fw-600 text-head" style={{ fontSize: 15, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                    <MapPin size={16} style={{ color: 'var(--primary)' }} />
+                  <div className="text-xs font-semibold text-zinc-100 flex items-center gap-2">
+                    <MapPin size={14} className="text-emerald-400" />
                     <span>Locations in {selectedWh.name}</span>
                   </div>
-                  <div className="text-muted" style={{ fontSize: 12, marginTop: 2 }}>
-                    {selectedWh.address || 'Primary Facility'}
+                  <div className="text-[11px] text-zinc-500 mt-0.5">
+                    {selectedWh.address || 'Central Facility'}
                   </div>
                 </div>
-                <div className="flex-center" style={{ gap: 8 }}>
-                  <button
+
+                <div className="flex items-center gap-1.5">
+                  <Button
                     id="add-location-btn"
-                    className="btn btn-primary btn-sm"
+                    size="sm"
                     onClick={openAddLoc}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    className="h-7 text-xs"
                   >
-                    <Plus size={14} strokeWidth={2.5} />
-                    <span>Add Location</span>
-                  </button>
+                    <Plus size={13} strokeWidth={2.5} />
+                    <span>Add Bin</span>
+                  </Button>
                   <button
                     className="btn-icon"
                     onClick={() => setSelectedWh(null)}
                     title="Close locations panel"
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    style={{ width: 28, height: 28 }}
                   >
-                    <X size={15} />
+                    <X size={14} />
                   </button>
                 </div>
               </div>
@@ -318,11 +348,11 @@ export default function Warehouses() {
               {locLoading && <div className="spinner-page" />}
 
               {!locLoading && (
-                <div className="table-wrap">
+                <div className="table-wrap border-0 rounded-none shadow-none">
                   <table>
                     <thead>
                       <tr>
-                        <th>Location / Bin</th>
+                        <th>Storage Bin / Zone</th>
                         <th>Created</th>
                         <th>Actions</th>
                       </tr>
@@ -331,22 +361,22 @@ export default function Warehouses() {
                       {locations.length === 0 && (
                         <tr>
                           <td colSpan={3} className="empty-state">
-                            <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center' }}>
-                              <MapPin size={32} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                            <div className="empty-icon flex justify-center">
+                              <MapPin size={28} className="text-zinc-600" />
                             </div>
-                            <div className="empty-text">No locations created for this warehouse</div>
+                            <div className="empty-text">No location bins configured yet</div>
                           </td>
                         </tr>
                       )}
                       {locations.map((loc) => (
-                        <tr key={loc.id}>
+                        <tr key={loc.id} className="hover:bg-zinc-800/40 transition-colors">
                           <td className="fw-600 text-head">
-                            <div className="flex-center" style={{ gap: 8, justifyContent: 'flex-start' }}>
-                              <MapPin size={15} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+                            <div className="flex items-center gap-2">
+                              <MapPin size={13} className="text-zinc-500 shrink-0" />
                               <span>{loc.name}</span>
                             </div>
                           </td>
-                          <td className="text-muted" style={{ fontSize: 12 }}>
+                          <td className="text-muted text-xs">
                             {loc.created_at ? new Date(loc.created_at).toLocaleDateString() : '—'}
                           </td>
                           <td>
@@ -354,18 +384,18 @@ export default function Warehouses() {
                               <button
                                 className="btn-icon"
                                 onClick={() => openEditLoc(loc)}
-                                title="Edit Location"
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Edit Location Name"
+                                style={{ width: 26, height: 26 }}
                               >
-                                <Pencil size={14} />
+                                <Pencil size={12} />
                               </button>
                               <button
                                 className="btn-icon"
-                                onClick={() => handleDeleteLoc(loc.id)}
+                                onClick={() => setDeleteDialog({ isOpen: true, locId: loc.id, loading: false })}
                                 title="Delete Location"
-                                style={{ color: 'var(--red)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                style={{ width: 26, height: 26, color: 'var(--rose)' }}
                               >
-                                <Trash2 size={14} />
+                                <Trash2 size={12} />
                               </button>
                             </div>
                           </td>
@@ -375,6 +405,16 @@ export default function Warehouses() {
                   </table>
                 </div>
               )}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-zinc-800 p-8 flex flex-col items-center justify-center text-center">
+              <div className="h-10 w-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 mb-3">
+                <MapPin size={18} />
+              </div>
+              <div className="text-xs font-semibold text-zinc-300">No Warehouse Selected</div>
+              <p className="text-[11px] text-zinc-500 mt-1 max-w-xs">
+                Select a warehouse facility from the table on the left to inspect, create, or modify its internal storage aisles and racks.
+              </p>
             </div>
           )}
         </div>
@@ -386,60 +426,43 @@ export default function Warehouses() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title">
-                {editingWh ? 'Edit Warehouse' : 'Add New Warehouse'}
+                {editingWh ? 'Edit Facility Details' : 'Add Storage Facility'}
               </div>
-              <button className="btn-icon" onClick={() => setShowWhModal(false)}>
-                <X size={16} />
+              <button className="btn-icon" onClick={() => setShowWhModal(false)} style={{ width: 26, height: 26 }}>
+                <X size={14} />
               </button>
             </div>
             <form onSubmit={handleSaveWh}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 16 }}>
+              <div className="space-y-3.5 mb-5">
                 <div className="form-group">
-                  <label className="form-label">Warehouse Name *</label>
+                  <label className="form-label">Facility / Warehouse Name *</label>
                   <input
                     id="warehouse-name"
                     className="form-control"
-                    placeholder="e.g. Central Hub or Main Warehouse"
+                    placeholder="e.g. Central Logistics Hub"
                     value={whForm.name}
                     onChange={(e) => setWhForm((f) => ({ ...f, name: e.target.value }))}
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Physical Address / Notes</label>
+                  <label className="form-label">Physical Address</label>
                   <input
                     id="warehouse-address"
                     className="form-control"
-                    placeholder="e.g. 100 Industrial Parkway, Section B"
+                    placeholder="e.g. 100 Industrial Parkway, Sector 4"
                     value={whForm.address}
                     onChange={(e) => setWhForm((f) => ({ ...f, address: e.target.value }))}
                   />
                 </div>
               </div>
               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={() => setShowWhModal(false)}
-                >
+                <Button type="button" variant="ghost" onClick={() => setShowWhModal(false)}>
                   Cancel
-                </button>
-                <button
-                  id="warehouse-save-btn"
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={whSaving}
-                >
-                  {whSaving ? (
-                    <>
-                      <span className="spinner" /> Saving…
-                    </>
-                  ) : editingWh ? (
-                    'Update Warehouse'
-                  ) : (
-                    'Create Warehouse'
-                  )}
-                </button>
+                </Button>
+                <Button id="warehouse-save-btn" type="submit" disabled={whSaving}>
+                  {whSaving ? 'Saving…' : editingWh ? 'Save Changes' : 'Create Warehouse'}
+                </Button>
               </div>
             </form>
           </div>
@@ -452,20 +475,20 @@ export default function Warehouses() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title">
-                {editingLoc ? 'Edit Location' : `Add Location to ${selectedWh?.name}`}
+                {editingLoc ? 'Edit Bin Name' : `Add Bin to ${selectedWh?.name}`}
               </div>
-              <button className="btn-icon" onClick={() => setShowLocModal(false)}>
-                <X size={16} />
+              <button className="btn-icon" onClick={() => setShowLocModal(false)} style={{ width: 26, height: 26 }}>
+                <X size={14} />
               </button>
             </div>
             <form onSubmit={handleSaveLoc}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 16 }}>
+              <div className="space-y-3.5 mb-5">
                 <div className="form-group">
-                  <label className="form-label">Location / Zone / Bin Name *</label>
+                  <label className="form-label">Storage Bin / Aisle / Zone Name *</label>
                   <input
                     id="location-name"
                     className="form-control"
-                    placeholder="e.g. Aisle 3 - Shelf B or Cold Storage"
+                    placeholder="e.g. Aisle 3 - Pallet Rack B"
                     value={locForm.name}
                     onChange={(e) => setLocForm((f) => ({ ...f, name: e.target.value }))}
                     required
@@ -473,34 +496,28 @@ export default function Warehouses() {
                 </div>
               </div>
               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={() => setShowLocModal(false)}
-                >
+                <Button type="button" variant="ghost" onClick={() => setShowLocModal(false)}>
                   Cancel
-                </button>
-                <button
-                  id="location-save-btn"
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={locSaving}
-                >
-                  {locSaving ? (
-                    <>
-                      <span className="spinner" /> Saving…
-                    </>
-                  ) : editingLoc ? (
-                    'Update Location'
-                  ) : (
-                    'Add Location'
-                  )}
-                </button>
+                </Button>
+                <Button id="location-save-btn" type="submit" disabled={locSaving}>
+                  {locSaving ? 'Saving…' : editingLoc ? 'Save Changes' : 'Create Location'}
+                </Button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* Reusable Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        title="Delete Storage Location?"
+        description="Are you sure you want to remove this storage location? If active inventory exists at this location, deletion will be blocked."
+        confirmLabel="Delete Location"
+        loading={deleteDialog.loading}
+        onConfirm={executeDeleteLocation}
+        onCancel={() => setDeleteDialog({ isOpen: false, locId: null, loading: false })}
+      />
     </Layout>
   );
 }
