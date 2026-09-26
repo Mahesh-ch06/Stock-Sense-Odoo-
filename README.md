@@ -111,6 +111,22 @@ ALERT_EMAIL=manager@yourcompany.com
 ALERT_CRON_SCHEDULE="*/30 * * * *"
 ```
 
+Seed the database with rich enterprise demo data:
+```bash
+# Idempotent seed
+npm run seed
+
+# Or clean reset & seed
+node src/scripts/seed.js --fresh
+```
+
+#### 🔑 Demo User Accounts:
+| Role | Email | Password |
+|---|---|---|
+| **Manager** | `manager@stocksense.com` | `StockSense2026!` |
+| **Warehouse Staff** | `staff@stocksense.com` | `StockSense2026!` |
+| **Supervisor** | `admin@stocksense.com` | `StockSense2026!` |
+
 Start the backend:
 ```bash
 npm run dev
@@ -123,6 +139,20 @@ cd frontend
 npm install
 npm run dev
 # Running on http://localhost:5173
+```
+
+---
+
+## 🧪 Automated Testing
+
+StockSense features 28 automated integration & unit tests:
+
+```bash
+# Run Backend Test Suite (19 integration tests with Jest & Supertest)
+cd backend && npm test
+
+# Run Frontend Test Suite (9 unit & component tests with Vitest & Testing Library)
+cd frontend && npm test
 ```
 
 ---
