@@ -1,10 +1,12 @@
-// Dashboard — GET /dashboard/kpis with Shadcn design system & Tailwind v4
-import { useState, useEffect } from 'react';
+// Dashboard — Real-Time Inventory Valuation, Critical Stock Replenishment & KPIs
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import API from '../api';
 import {
+  DollarSign,
   Package,
+  Layers,
   AlertTriangle,
   Ban,
   ArrowDownToLine,
@@ -15,52 +17,60 @@ import {
   Building2,
   RefreshCw,
   ArrowUpRight,
-  Sparkles,
+  Plus,
+  TrendingDown,
+  TrendingUp,
+  CheckCircle2,
+  Activity,
 } from 'lucide-react';
 
-const KPI_CONFIG = [
-  { key: 'total_products',     label: 'Active SKUs',        icon: Package,         badge: 'Catalog',    variant: 'secondary' },
-  { key: 'low_stock',          label: 'Low Stock Alert',    icon: AlertTriangle,   badge: 'Action Needed', variant: 'warning' },
-  { key: 'out_of_stock',       label: 'Depleted Stock',     icon: Ban,             badge: 'Critical',   variant: 'destructive' },
-  { key: 'pending_receipts',   label: 'Inbound Orders',     icon: ArrowDownToLine, badge: 'Awaiting Recv', variant: 'info' },
-  { key: 'pending_deliveries', label: 'Outbound Dispatches',icon: Truck,           badge: 'Fulfillment', variant: 'warning' },
-  { key: 'pending_transfers',  label: 'Internal Relocations',icon: ArrowLeftRight, badge: 'In Transit', variant: 'secondary' },
-  { key: 'backorders',         label: 'Active Backorders',  icon: Clock,           badge: 'Delayed',    variant: 'warning' },
-];
-
 export default function Dashboard() {
-  const [kpis, setKpis] = useState(null);
+  const [data, setData] = useState(null);
   const [warehouse, setWarehouse] = useState('');
+  const [warehousesList, setWarehousesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Fetch dynamic warehouses for dropdown
   useEffect(() => {
-    fetchKpis();
-  }, [warehouse]);
+    async function loadWarehouses() {
+      try {
+        const res = await API.get('/warehouses');
+        setWarehousesList(res.data || []);
+      } catch (err) {
+        console.error('Failed to load warehouses list', err);
+      }
+    }
+    loadWarehouses();
+  }, []);
 
-  async function fetchKpis() {
+  const fetchKpis = useCallback(async () => {
     setLoading(true);
     try {
       const params = warehouse ? { warehouse_id: warehouse } : {};
-      const { data } = await API.get('/dashboard/kpis', { params });
-      setKpis(data);
+      const res = await API.get('/dashboard/kpis', { params });
+      setData(res.data);
     } catch {
       setError('Failed to load operational metrics.');
     } finally {
       setLoading(false);
     }
-  }
+  }, [warehouse]);
+
+  useEffect(() => {
+    fetchKpis();
+  }, [fetchKpis]);
 
   return (
     <Layout title="Dashboard">
-      {/* Top Banner / Breadcrumb & Header */}
+      {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <div className="text-xl font-semibold tracking-tight text-zinc-100">
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
             Operational Overview
-          </div>
+          </h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Real-time multi-warehouse inventory levels, ledger velocity, and pending movements
+            Real-time capital valuation, threshold deficit alerts, and movement velocity
           </p>
         </div>
 
@@ -72,8 +82,11 @@ export default function Dashboard() {
             onChange={(e) => setWarehouse(e.target.value)}
           >
             <option value="">All Warehouses</option>
-            <option value="1">Central Logistics Hub</option>
-            <option value="2">West Coast Fulfillment</option>
+            {warehousesList.map((wh) => (
+              <option key={wh.id} value={wh.id}>
+                {wh.name}
+              </option>
+            ))}
           </select>
           <button
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700 transition-colors"
@@ -88,144 +101,358 @@ export default function Dashboard() {
       {loading && <div className="spinner-page" />}
       {error && <div className="alert-error mb-4">{error}</div>}
 
-      {kpis && (
-        <>
-          {/* KPI Metrics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-8">
-            {KPI_CONFIG.map(({ key, label, icon: Icon, badge, variant }) => {
-              const val = kpis[key] ?? 0;
-              const isAlert = (key === 'low_stock' || key === 'out_of_stock') && Number(val) > 0;
-
-              return (
-                <div
-                  key={key}
-                  className={`rounded-xl border p-4.5 transition-all duration-150 relative overflow-hidden backdrop-blur-xs ${
-                    isAlert
-                      ? 'border-rose-950/80 bg-rose-950/15 shadow-sm'
-                      : 'border-zinc-800/80 bg-zinc-900/40 hover:border-zinc-700/80 hover:bg-zinc-900/70 shadow-xs'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-zinc-400">{label}</span>
-                    <div
-                      className={`h-7 w-7 rounded-md flex items-center justify-center border ${
-                        isAlert
-                          ? 'border-rose-800/40 bg-rose-900/30 text-rose-300'
-                          : 'border-zinc-800 bg-zinc-900 text-zinc-400'
-                      }`}
-                    >
-                      <Icon size={14} strokeWidth={2} />
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex items-baseline justify-between">
-                    <div className="text-2xl font-bold tracking-tight text-zinc-50 font-mono">
-                      {val}
-                    </div>
-                    {badge && (
-                      <span
-                        className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${
-                          variant === 'destructive' && isAlert
-                            ? 'bg-rose-500/15 text-rose-400 border-rose-500/30'
-                            : variant === 'warning' && isAlert
-                            ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
-                            : 'bg-zinc-800/60 text-zinc-400 border-zinc-700/50'
-                        }`}
-                      >
-                        {badge}
-                      </span>
-                    )}
-                  </div>
+      {data && (
+        <div className="space-y-6">
+          {/* ── 1. Top Executive Asset Valuation Banner ──────────── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            {/* Total Valuation */}
+            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-4.5 backdrop-blur-xs shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-zinc-400">Total Inventory Asset Value</span>
+                <div className="h-7 w-7 rounded-md flex items-center justify-center border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
+                  <DollarSign size={14} strokeWidth={2.5} />
                 </div>
-              );
-            })}
+              </div>
+              <div className="mt-3">
+                <div className="text-2xl font-bold tracking-tight text-zinc-50 font-mono">
+                  ${Number(data.total_valuation || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <div className="text-[11px] text-zinc-500 mt-1 flex items-center gap-1.5">
+                  <span>Liquid asset valuation at cost</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Total Physical Units */}
+            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-4.5 backdrop-blur-xs shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-zinc-400">Total Units On Hand</span>
+                <div className="h-7 w-7 rounded-md flex items-center justify-center border border-sky-500/20 bg-sky-500/10 text-sky-400">
+                  <Layers size={14} strokeWidth={2} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <div className="text-2xl font-bold tracking-tight text-zinc-50 font-mono">
+                  {Number(data.total_units || 0).toLocaleString()} <span className="text-sm font-normal text-zinc-500">units</span>
+                </div>
+                <div className="text-[11px] text-zinc-500 mt-1">
+                  Across all active bin storage zones
+                </div>
+              </div>
+            </div>
+
+            {/* Low & Out-of-Stock Deficit */}
+            <div className={`rounded-xl border p-4.5 backdrop-blur-xs shadow-xs ${
+              (data.low_stock > 0 || data.out_of_stock > 0)
+                ? 'border-rose-950/80 bg-rose-950/15'
+                : 'border-zinc-800/80 bg-zinc-900/50'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-zinc-400">Stock Deficit Alerts</span>
+                <div className={`h-7 w-7 rounded-md flex items-center justify-center border ${
+                  (data.low_stock > 0 || data.out_of_stock > 0)
+                    ? 'border-rose-500/30 bg-rose-500/15 text-rose-400'
+                    : 'border-zinc-800 bg-zinc-900 text-zinc-400'
+                }`}>
+                  <AlertTriangle size={14} strokeWidth={2} />
+                </div>
+              </div>
+              <div className="mt-3 flex items-baseline gap-2">
+                <div className="text-2xl font-bold tracking-tight text-zinc-50 font-mono">
+                  {(data.low_stock || 0) + (data.out_of_stock || 0)}
+                </div>
+                <div className="text-xs text-rose-400 font-medium">
+                  {data.out_of_stock > 0 ? `${data.out_of_stock} depleted` : ''}
+                  {data.out_of_stock > 0 && data.low_stock > 0 ? ', ' : ''}
+                  {data.low_stock > 0 ? `${data.low_stock} below threshold` : ''}
+                  {data.low_stock === 0 && data.out_of_stock === 0 ? 'Healthy' : ''}
+                </div>
+              </div>
+            </div>
+
+            {/* Active SKUs */}
+            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-4.5 backdrop-blur-xs shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-zinc-400">Managed SKU Catalog</span>
+                <div className="h-7 w-7 rounded-md flex items-center justify-center border border-zinc-800 bg-zinc-900 text-zinc-400">
+                  <Package size={14} strokeWidth={2} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <div className="text-2xl font-bold tracking-tight text-zinc-50 font-mono">
+                  {data.total_products || 0} <span className="text-sm font-normal text-zinc-500">SKUs</span>
+                </div>
+                <div className="text-[11px] text-zinc-500 mt-1">
+                  Categorized products catalog
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Quick Operations Section */}
-          <div className="mb-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-              Operational Workflows
-            </h2>
+          {/* ── 2. Critical Stock Attention Table ──────────────── */}
+          <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle size={16} className="text-amber-400" />
+                  <h2 className="text-sm font-semibold text-zinc-100">
+                    Critical Stock & Reorder Attention
+                  </h2>
+                </div>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Products currently at or below minimum reorder point requiring vendor replenishment
+                </p>
+              </div>
+
+              <Link
+                to="/receipts"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-200 bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-md border border-zinc-700/60 transition-colors w-fit"
+              >
+                <Plus size={13} />
+                <span>Create Inbound Restock</span>
+              </Link>
+            </div>
+
+            {(!data.critical_items || data.critical_items.length === 0) ? (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+                <CheckCircle2 size={16} />
+                <span>All stock levels are currently healthy! No products are below reorder threshold.</span>
+              </div>
+            ) : (
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th>Product Name</th>
+                      <th>Category</th>
+                      <th>Current On-Hand</th>
+                      <th>Reorder Point</th>
+                      <th>Suggested Order</th>
+                      <th>Unit Cost</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.critical_items.map((item) => {
+                      const isZero = item.current_stock === 0;
+                      return (
+                        <tr key={item.id} className="hover:bg-zinc-800/50 transition-colors">
+                          <td className="td-mono">{item.sku}</td>
+                          <td className="fw-600 text-head">{item.name}</td>
+                          <td>
+                            <span className="badge badge-draft text-[11px]">
+                              {item.category_name || 'General'}
+                            </span>
+                          </td>
+                          <td>
+                            <span
+                              className={`inline-flex items-center gap-1 font-mono font-semibold ${
+                                isZero ? 'text-rose-400' : 'text-amber-400'
+                              }`}
+                            >
+                              {isZero ? <Ban size={12} /> : <AlertTriangle size={12} />}
+                              {item.current_stock} {item.unit_of_measure}
+                            </span>
+                          </td>
+                          <td className="font-mono text-zinc-400">{item.reorder_point}</td>
+                          <td className="font-mono text-zinc-200">
+                            +{item.reorder_qty || (item.reorder_point * 2)} {item.unit_of_measure}
+                          </td>
+                          <td className="font-mono text-zinc-300">
+                            ${Number(item.unit_cost || 0).toFixed(2)}
+                          </td>
+                          <td>
+                            <Link
+                              to="/receipts"
+                              className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-100 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded border border-zinc-700/60 transition-colors"
+                            >
+                              <span>Restock</span>
+                              <ArrowUpRight size={11} />
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {[
-              {
-                title: 'Inbound Shipments',
-                desc: 'Receive PO inventory, check receipts, and validate supplier consignments',
-                icon: ArrowDownToLine,
-                href: '/receipts',
-                badge: 'Stock In',
-              },
-              {
-                title: 'Delivery Orders',
-                desc: 'Pick, pack, and validate customer orders with real-time stock allocation',
-                icon: Truck,
-                href: '/deliveries',
-                badge: 'Stock Out',
-              },
-              {
-                title: 'Internal Relocations',
-                desc: 'Move stock between storage zones, warehouse racks, and dispatch bays',
-                icon: ArrowLeftRight,
-                href: '/transfers',
-                badge: 'Internal',
-              },
-              {
-                title: 'Cycle Count Audit',
-                desc: 'Reconcile physical inventory counts against recorded system ledger balances',
-                icon: Scale,
-                href: '/adjustments',
-                badge: 'Auditing',
-              },
-              {
-                title: 'Storage Facilities',
-                desc: 'Configure warehouses, storage zones, aisle bins, and capacity limits',
-                icon: Building2,
-                href: '/warehouses',
-                badge: 'Locations',
-              },
-              {
-                title: 'Master Catalog',
-                desc: 'Manage SKUs, categories, supplier costs, and minimum reorder triggers',
-                icon: Package,
-                href: '/products',
-                badge: 'Inventory',
-              },
-            ].map((q) => {
-              const Icon = q.icon;
-              return (
-                <Link
-                  key={q.href}
-                  to={q.href}
-                  className="group rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4 transition-all duration-150 hover:border-zinc-700 hover:bg-zinc-900/80 shadow-xs flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
+          {/* ── 3. Operational Workflow Queues & Recent Ledger Activity ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Operational Pipeline Status */}
+            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 shadow-xs">
+              <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3.5">
+                Active Operational Queues
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
+                  <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
+                    <ArrowDownToLine size={13} className="text-sky-400" />
+                    <span>Receipts</span>
+                  </div>
+                  <div className="text-xl font-bold font-mono text-zinc-100 mt-2">
+                    {data.pending_receipts || 0}
+                  </div>
+                  <span className="text-[10px] text-zinc-500">Awaiting check-in</span>
+                </div>
+
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
+                  <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
+                    <Truck size={13} className="text-amber-400" />
+                    <span>Deliveries</span>
+                  </div>
+                  <div className="text-xl font-bold font-mono text-zinc-100 mt-2">
+                    {data.pending_deliveries || 0}
+                  </div>
+                  <span className="text-[10px] text-zinc-500">Pick / pack queue</span>
+                </div>
+
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
+                  <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
+                    <ArrowLeftRight size={13} className="text-purple-400" />
+                    <span>Transfers</span>
+                  </div>
+                  <div className="text-xl font-bold font-mono text-zinc-100 mt-2">
+                    {data.pending_transfers || 0}
+                  </div>
+                  <span className="text-[10px] text-zinc-500">In relocation</span>
+                </div>
+
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
+                  <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
+                    <Clock size={13} className="text-rose-400" />
+                    <span>Backorders</span>
+                  </div>
+                  <div className="text-xl font-bold font-mono text-zinc-100 mt-2">
+                    {data.backorders || 0}
+                  </div>
+                  <span className="text-[10px] text-zinc-500">Delayed items</span>
+                </div>
+              </div>
+
+              {/* Quick links to workflows */}
+              <div className="mt-4 pt-3.5 border-t border-zinc-800/60 flex items-center justify-between text-xs text-zinc-400">
+                <Link to="/deliveries" className="hover:text-zinc-100 inline-flex items-center gap-1">
+                  <span>Go to Delivery Dispatch Queue</span>
+                  <ArrowUpRight size={12} />
+                </Link>
+                <Link to="/transfers" className="hover:text-zinc-100 inline-flex items-center gap-1">
+                  <span>Transfer Orders</span>
+                  <ArrowUpRight size={12} />
+                </Link>
+              </div>
+            </div>
+
+            {/* Live Audit Activity Stream */}
+            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-5 shadow-xs">
+              <div className="flex items-center justify-between mb-3.5">
+                <div className="flex items-center gap-2">
+                  <Activity size={14} className="text-zinc-400" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                    Live Stock Ledger Feed
+                  </span>
+                </div>
+                <Link to="/ledger" className="text-xs text-zinc-400 hover:text-zinc-100 inline-flex items-center gap-1">
+                  <span>Full Ledger</span>
+                  <ArrowUpRight size={12} />
+                </Link>
+              </div>
+
+              {(!data.recent_activity || data.recent_activity.length === 0) ? (
+                <div className="text-xs text-zinc-500 py-6 text-center">No recent stock activity logged</div>
+              ) : (
+                <div className="space-y-2.5">
+                  {data.recent_activity.map((act) => {
+                    const isPositive = Number(act.delta) > 0;
+                    return (
+                      <div
+                        key={act.id}
+                        className="flex items-center justify-between p-2 rounded-lg bg-zinc-900/60 border border-zinc-800/60 text-xs"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div
+                            className={`h-6 w-6 rounded-md flex items-center justify-center shrink-0 ${
+                              isPositive
+                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                            }`}
+                          >
+                            {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-medium text-zinc-200 truncate">
+                              {act.product_name}
+                            </div>
+                            <div className="text-[11px] text-zinc-500">
+                              {act.location_name} • {act.operator_name || 'System Staff'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <div
+                            className={`font-mono font-semibold ${
+                              isPositive ? 'text-emerald-400' : 'text-rose-400'
+                            }`}
+                          >
+                            {isPositive ? '+' : ''}{act.delta}
+                          </div>
+                          <div className="text-[10px] text-zinc-500">
+                            {act.created_at ? new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── 4. Quick Workflow Navigation Grid ─────────────── */}
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
+              Operations Hub
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {[
+                { title: 'Inbound Receipts', desc: 'Process vendor shipments & restock catalog', icon: ArrowDownToLine, href: '/receipts' },
+                { title: 'Delivery Dispatches', desc: 'Picking, packing & customer fulfillment', icon: Truck, href: '/deliveries' },
+                { title: 'Internal Relocations', desc: 'Move inventory between storage zones & bins', icon: ArrowLeftRight, href: '/transfers' },
+                { title: 'Cycle Count Audit', desc: 'Reconcile physical stock against system ledger', icon: Scale, href: '/adjustments' },
+                { title: 'Storage Facilities', desc: 'Manage warehouses, zones, and rack limits', icon: Building2, href: '/warehouses' },
+                { title: 'Catalog & SKUs', desc: 'Set pricing, units of measure, and reorder levels', icon: Package, href: '/products' },
+              ].map((q) => {
+                const Icon = q.icon;
+                return (
+                  <Link
+                    key={q.href}
+                    to={q.href}
+                    className="group rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4 transition-all duration-150 hover:border-zinc-700 hover:bg-zinc-900/80 shadow-xs flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
                       <div className="h-8 w-8 rounded-lg bg-zinc-800/70 border border-zinc-700/60 flex items-center justify-center text-zinc-200 group-hover:text-zinc-50 group-hover:bg-zinc-800 transition-colors">
                         <Icon size={16} strokeWidth={2} />
                       </div>
-                      <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider group-hover:text-zinc-400 transition-colors">
-                        {q.badge}
-                      </span>
+                      <div>
+                        <div className="text-xs font-semibold text-zinc-100 group-hover:text-white transition-colors">
+                          {q.title}
+                        </div>
+                        <div className="text-[11px] text-zinc-500 mt-0.5">
+                          {q.desc}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors">
-                      {q.title}
-                    </div>
-                    <p className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
-                      {q.desc}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-zinc-800/50 flex items-center justify-between text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors">
-                    <span className="text-[11px] font-medium">Open Workflow</span>
-                    <ArrowUpRight size={13} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </div>
-                </Link>
-              );
-            })}
+                    <ArrowUpRight size={13} className="text-zinc-500 group-hover:text-zinc-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 ml-2" />
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </>
+        </div>
       )}
     </Layout>
   );
