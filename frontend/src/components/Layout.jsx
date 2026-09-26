@@ -2,12 +2,14 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 
 const NAV = [
-  { to: '/dashboard',  icon: '📊', label: 'Dashboard' },
-  { to: '/products',   icon: '📦', label: 'Products' },
-  { to: '/receipts',   icon: '📥', label: 'Receipts' },
-  { to: '/deliveries', icon: '🚚', label: 'Deliveries' },
-  { to: '/transfers',  icon: '🔄', label: 'Transfers' },
-  { to: '/ledger',     icon: '📋', label: 'Move History' },
+  { to: '/dashboard',   icon: '📊', label: 'Dashboard' },
+  { to: '/products',    icon: '📦', label: 'Products' },
+  { to: '/receipts',    icon: '📥', label: 'Receipts' },
+  { to: '/deliveries',  icon: '🚚', label: 'Deliveries' },
+  { to: '/transfers',   icon: '🔄', label: 'Transfers' },
+  { to: '/adjustments', icon: '⚖️', label: 'Adjustments' },
+  { to: '/warehouses',  icon: '🏢', label: 'Warehouses' },
+  { to: '/ledger',      icon: '📋', label: 'Move History' },
 ];
 
 export default function Layout({ children, title }) {

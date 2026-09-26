@@ -39,7 +39,7 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // ── POST /warehouses ───────────────────────────────────────
-router.post('/', authenticate, requireRole('manager'), async (req, res) => {
+router.post('/', authenticate, requireRole('manager', 'admin'), async (req, res) => {
   const { name, address } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
 
@@ -70,7 +70,7 @@ router.post('/', authenticate, requireRole('manager'), async (req, res) => {
 });
 
 // ── PATCH /warehouses/:id ──────────────────────────────────
-router.patch('/:id', authenticate, requireRole('manager'), async (req, res) => {
+router.patch('/:id', authenticate, requireRole('manager', 'admin'), async (req, res) => {
   const { name, address } = req.body;
   try {
     const result = await pool.query(
@@ -103,7 +103,7 @@ router.get('/:id/locations', authenticate, async (req, res) => {
 });
 
 // ── POST /warehouses/:id/locations ────────────────────────
-router.post('/:id/locations', authenticate, requireRole('manager'), async (req, res) => {
+router.post('/:id/locations', authenticate, requireRole('manager', 'admin'), async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
 
@@ -124,7 +124,7 @@ router.post('/:id/locations', authenticate, requireRole('manager'), async (req, 
 });
 
 // ── PATCH /warehouses/:id/locations/:locId ─────────────────
-router.patch('/:id/locations/:locId', authenticate, requireRole('manager'), async (req, res) => {
+router.patch('/:id/locations/:locId', authenticate, requireRole('manager', 'admin'), async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
 
@@ -142,7 +142,7 @@ router.patch('/:id/locations/:locId', authenticate, requireRole('manager'), asyn
 });
 
 // ── DELETE /warehouses/:id/locations/:locId ────────────────
-router.delete('/:id/locations/:locId', authenticate, requireRole('manager'), async (req, res) => {
+router.delete('/:id/locations/:locId', authenticate, requireRole('manager', 'admin'), async (req, res) => {
   try {
     // Prevent deletion if stock exists at this location
     const stockCheck = await pool.query(
