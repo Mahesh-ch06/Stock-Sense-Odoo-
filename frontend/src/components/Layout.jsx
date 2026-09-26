@@ -1,4 +1,4 @@
-// Shared Layout: Modern Shadcn-styled Sidebar + Shell
+// Shared Layout: Modern Shadcn-styled Sidebar + Spacious Shell
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -10,7 +10,6 @@ import {
   Building2,
   ClipboardList,
   LogOut,
-  MapPin,
   Boxes,
   ChevronRight,
   ChevronsUpDown,
@@ -43,14 +42,14 @@ export default function Layout({ children, title }) {
       {/* Sidebar */}
       <aside className="sidebar">
         {/* Workspace Switcher Header */}
-        <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px' }}>
+        <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div
               className="logo-icon"
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: 6,
+                width: 30,
+                height: 30,
+                borderRadius: 8,
                 background: '#18181b',
                 border: '1px solid #27272a',
                 display: 'flex',
@@ -59,10 +58,10 @@ export default function Layout({ children, title }) {
                 color: '#fafafa',
               }}
             >
-              <Boxes size={15} strokeWidth={2.5} />
+              <Boxes size={16} strokeWidth={2.5} />
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-head)', lineHeight: 1.2 }}>StockSense</div>
+              <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-head)', lineHeight: 1.2 }}>StockSense</div>
               <div style={{ fontSize: 10.5, color: 'var(--text-muted)' }}>Enterprise ERP</div>
             </div>
           </div>
@@ -129,7 +128,7 @@ export default function Layout({ children, title }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
-                padding: '4px 10px',
+                padding: '5px 12px',
                 borderRadius: 6,
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border)',
@@ -142,7 +141,7 @@ export default function Layout({ children, title }) {
               <kbd
                 style={{
                   fontSize: 10,
-                  padding: '1px 4px',
+                  padding: '1px 5px',
                   borderRadius: 4,
                   background: 'var(--bg-hover)',
                   border: '1px solid var(--border)',
@@ -159,7 +158,7 @@ export default function Layout({ children, title }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '4px 10px',
+                padding: '5px 12px',
                 borderRadius: 9999,
                 background: 'rgba(16, 185, 129, 0.08)',
                 border: '1px solid rgba(16, 185, 129, 0.2)',
@@ -184,9 +183,9 @@ export default function Layout({ children, title }) {
             <div
               className="avatar"
               style={{
-                width: 28,
-                height: 28,
-                fontSize: 11,
+                width: 30,
+                height: 30,
+                fontSize: 11.5,
                 background: '#27272a',
                 borderColor: '#3f3f46',
               }}
@@ -196,7 +195,11 @@ export default function Layout({ children, title }) {
           </div>
         </header>
 
-        <main className="page-content">{children}</main>
+        <main className="page-content">
+          <div className="max-w-[1440px] mx-auto w-full pb-12">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

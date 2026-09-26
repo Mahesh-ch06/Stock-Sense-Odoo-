@@ -80,7 +80,7 @@ export default function Receipts() {
 
   return (
     <Layout title="Receipts">
-      <div className="space-y-6">
+      <div className="space-y-8">
         <PageHeader
           title="Inbound Receipts"
           description="Receive shipments, log vendor deliveries, and replenish inventory"
@@ -91,7 +91,7 @@ export default function Receipts() {
                 setModalError('');
                 setShowModal(true);
               }}
-              className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium h-9 text-xs transition-colors"
+              className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium h-9 px-4 text-xs transition-colors"
             >
               <Plus className="h-3.5 w-3.5 mr-1.5" />
               New Receipt
@@ -100,15 +100,15 @@ export default function Receipts() {
         />
 
         {/* Filter Toolbar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-            <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mr-1">Status:</span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+            <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider mr-1.5">Status:</span>
             {STATUS_OPTS.map((s) => (
               <button
                 key={s}
                 id={`receipt-filter-${s || 'all'}`}
                 onClick={() => setStatus(s)}
-                className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors capitalize ${
+                className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors capitalize ${
                   status === s
                     ? 'bg-zinc-800 text-zinc-100 border border-zinc-700 shadow-xs'
                     : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 border border-transparent'
@@ -123,7 +123,7 @@ export default function Receipts() {
             variant="outline"
             size="sm"
             onClick={fetchReceipts}
-            className="border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100 h-8 text-xs transition-colors"
+            className="border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100 h-9 px-3.5 text-xs transition-colors rounded-lg"
           >
             <RefreshCw className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
             Refresh
@@ -135,57 +135,57 @@ export default function Receipts() {
             <Loader2 className="h-6 w-6 text-zinc-500 animate-spin" />
           </div>
         ) : (
-          <Card className="border-zinc-800/80 bg-zinc-900/40 overflow-hidden shadow-sm">
+          <Card className="border-zinc-800/80 bg-zinc-900/40 overflow-hidden shadow-sm p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b border-zinc-800/80 bg-zinc-900/60 text-zinc-400 uppercase tracking-wider font-medium text-[11px]">
-                    <th className="py-3 px-4">Reference</th>
-                    <th className="py-3 px-4">Supplier</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Destination Warehouse</th>
-                    <th className="py-3 px-4">Created Date</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+                    <th className="py-3.5 px-5">Reference</th>
+                    <th className="py-3.5 px-5">Supplier</th>
+                    <th className="py-3.5 px-5">Status</th>
+                    <th className="py-3.5 px-5">Destination Warehouse</th>
+                    <th className="py-3.5 px-5">Created Date</th>
+                    <th className="py-3.5 px-5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/50">
                   {receipts.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-zinc-500">
-                        <ArrowDownToLine className="h-8 w-8 mx-auto mb-2 text-zinc-600 stroke-[1.5]" />
-                        <p className="text-xs">No inbound receipts found</p>
+                      <td colSpan={6} className="py-16 text-center text-zinc-500">
+                        <ArrowDownToLine className="h-9 w-9 mx-auto mb-2 text-zinc-600 stroke-[1.5]" />
+                        <p className="text-sm">No inbound receipts found</p>
                       </td>
                     </tr>
                   ) : (
                     receipts.map((r) => (
                       <tr key={r.id} className="hover:bg-zinc-800/30 transition-colors">
-                        <td className="py-3 px-4 font-mono font-medium text-zinc-200">
+                        <td className="py-4 px-5 font-mono font-medium text-zinc-200">
                           {r.reference || `REC/${r.id}`}
                         </td>
-                        <td className="py-3 px-4 font-medium text-zinc-100">
+                        <td className="py-4 px-5 font-medium text-zinc-100">
                           {r.supplier || '—'}
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-4 px-5">
                           <StatusBadge status={r.status} />
                         </td>
-                        <td className="py-3 px-4 text-zinc-300">
-                          <span className="inline-flex items-center gap-1.5 text-zinc-300">
-                            <Building2 className="h-3.5 w-3.5 text-zinc-500" />
+                        <td className="py-4 px-5 text-zinc-300">
+                          <span className="inline-flex items-center gap-2 text-zinc-300">
+                            <Building2 className="h-4 w-4 text-zinc-500" />
                             {r.warehouse_name || `Warehouse ${r.warehouse_id}`}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-zinc-400 font-mono text-[11px]">
+                        <td className="py-4 px-5 text-zinc-400 font-mono text-xs">
                           {r.created_at ? new Date(r.created_at).toLocaleDateString() : '—'}
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-4 px-5 text-right">
                           <Link to={`/receipts/${r.id}`}>
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-7 px-2.5 text-xs text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800/60"
+                              className="h-8 px-3 text-xs text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800/60"
                             >
                               View
-                              <ArrowRight className="h-3 w-3 ml-1" />
+                              <ArrowRight className="h-3.5 w-3.5 ml-1" />
                             </Button>
                           </Link>
                         </td>
@@ -202,55 +202,55 @@ export default function Receipts() {
       {/* New Receipt Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-150"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl p-6 space-y-5"
+            className="w-full max-w-xl rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl p-7 space-y-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-200">
-                  <ArrowDownToLine className="h-4 w-4" />
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-200">
+                  <ArrowDownToLine className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-100">Create Inbound Receipt</h3>
-                  <p className="text-[11px] text-zinc-400">Log incoming purchase order from supplier</p>
+                  <h3 className="text-base font-semibold text-zinc-100">Create Inbound Receipt</h3>
+                  <p className="text-xs text-zinc-400 mt-0.5">Log incoming purchase order from supplier</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-zinc-500 hover:text-zinc-300 transition-colors"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4.5 w-4.5" />
               </button>
             </div>
 
             {modalError && (
-              <div className="flex items-start gap-2 p-2.5 rounded-lg border border-red-500/20 bg-red-950/20 text-xs text-red-400">
+              <div className="flex items-start gap-2.5 p-3 rounded-lg border border-red-500/20 bg-red-950/20 text-xs text-red-400">
                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
                 <span>{modalError}</span>
               </div>
             )}
 
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-zinc-300">Supplier Name *</label>
+            <form onSubmit={handleCreate} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-zinc-300">Supplier Name *</label>
                   <Input
                     id="receipt-supplier"
                     placeholder="e.g. Acme Supplies Ltd"
                     value={form.supplier}
                     onChange={(e) => setForm((f) => ({ ...f, supplier: e.target.value }))}
-                    className="bg-zinc-950/50 border-zinc-800 text-zinc-100 text-xs h-9 focus-visible:ring-zinc-600"
+                    className="bg-zinc-950/50 border-zinc-800 text-zinc-100 text-xs sm:text-sm h-10 rounded-lg focus-visible:ring-zinc-600"
                     required
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-zinc-300">Destination Warehouse</label>
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-zinc-300">Destination Warehouse</label>
                   <select
-                    className="w-full h-9 rounded-md border border-zinc-800 bg-zinc-950/50 px-3 text-xs text-zinc-100 focus:outline-hidden focus:ring-1 focus:ring-zinc-600"
+                    className="w-full h-10 rounded-lg border border-zinc-800 bg-zinc-950/50 px-3.5 text-xs sm:text-sm text-zinc-100 focus:outline-hidden focus:ring-1 focus:ring-zinc-600"
                     value={form.warehouse_id}
                     onChange={(e) => setForm((f) => ({ ...f, warehouse_id: e.target.value }))}
                   >

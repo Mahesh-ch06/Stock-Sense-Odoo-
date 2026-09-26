@@ -117,62 +117,73 @@ export default function Products() {
       <PageHeader
         title="Products & Master Catalog"
         description="Maintain unified SKU definitions, standard valuations, and minimum replenishment points"
-      >
-        <Button id="add-product-btn" onClick={openAdd}>
-          <Plus size={14} strokeWidth={2.5} />
-          <span>Add Product</span>
-        </Button>
-      </PageHeader>
+        actions={
+          <Button
+            id="add-product-btn"
+            onClick={openAdd}
+            className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium h-9 px-4 text-xs transition-colors"
+          >
+            <Plus size={14} strokeWidth={2.5} className="mr-1.5" />
+            <span>Add Product</span>
+          </Button>
+        }
+      />
 
       {/* Feedback banner */}
       {feedback && (
         <div
-          className={`mb-4 flex items-center justify-between p-3 rounded-lg border text-xs ${
+          className={`mb-6 flex items-center justify-between p-4 rounded-xl border text-xs sm:text-sm ${
             feedback.type === 'success'
               ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
               : 'bg-rose-500/10 border-rose-500/20 text-rose-300'
           }`}
         >
-          <div className="flex items-center gap-2">
-            {feedback.type === 'success' ? <CheckCircle2 size={15} /> : <AlertCircle size={15} />}
+          <div className="flex items-center gap-2.5">
+            {feedback.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
             <span>{feedback.message}</span>
           </div>
           <button onClick={() => setFeedback(null)} className="text-zinc-400 hover:text-zinc-200">
-            <X size={13} />
+            <X size={14} />
           </button>
         </div>
       )}
 
       {/* Search & Category Filter Toolbar */}
-      <div className="filter-bar">
-        <div className="search-box" style={{ maxWidth: 280 }}>
-          <span className="search-icon">
-            <Search size={14} />
-          </span>
-          <input
-            id="product-search"
-            placeholder="Search SKU or item name…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 max-w-xl">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-500" />
+            <input
+              id="product-search"
+              placeholder="Search SKU or item name…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 h-10 text-xs sm:text-sm bg-zinc-900/60 border border-zinc-800 rounded-lg text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+            />
+          </div>
+
+          <select
+            id="product-category-filter"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="h-10 rounded-lg border border-zinc-800 bg-zinc-900/60 px-3.5 text-xs sm:text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-600 cursor-pointer"
+          >
+            <option value="">All Categories</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Raw Materials">Raw Materials</option>
+            <option value="Industrial Equipment">Industrial Equipment</option>
+            <option value="Packaging & Consumables">Packaging & Consumables</option>
+          </select>
         </div>
 
-        <select
-          id="product-category-filter"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="h-8 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1 text-xs text-zinc-200 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 cursor-pointer"
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={fetchProducts}
+          className="border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100 h-10 px-4 text-xs transition-colors self-start sm:self-auto rounded-lg"
         >
-          <option value="">All Categories</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Furniture">Furniture</option>
-          <option value="Raw Materials">Raw Materials</option>
-          <option value="Industrial Equipment">Industrial Equipment</option>
-          <option value="Packaging & Consumables">Packaging & Consumables</option>
-        </select>
-
-        <Button variant="ghost" size="sm" onClick={fetchProducts}>
-          <RefreshCw size={12} />
+          <RefreshCw size={13} className="mr-1.5 text-zinc-400" />
           <span>Refresh</span>
         </Button>
       </div>
@@ -180,8 +191,9 @@ export default function Products() {
       {loading && <div className="spinner-page" />}
 
       {!loading && (
-        <div className="table-wrap">
-          <table>
+        <Card className="border-zinc-800/80 bg-zinc-900/40 overflow-hidden shadow-sm p-0">
+          <div className="overflow-x-auto">
+            <table>
             <thead>
               <tr>
                 <th>SKU</th>
@@ -278,7 +290,8 @@ export default function Products() {
               })}
             </tbody>
           </table>
-        </div>
+          </div>
+        </Card>
       )}
 
       {/* Add / Edit Modal */}

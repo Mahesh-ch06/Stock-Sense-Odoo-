@@ -146,31 +146,31 @@ export default function DeliveryDetail() {
 
   return (
     <Layout title="Delivery Detail">
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Navigation & Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-4">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-5 mb-8">
+          <div className="flex items-center gap-3.5">
             <Link to="/deliveries">
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 w-8 p-0 border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:text-zinc-100"
+                className="h-9 w-9 p-0 border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:text-zinc-100 rounded-lg"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
             <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-lg font-bold tracking-tight text-zinc-100 font-mono">
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-bold tracking-tight text-zinc-100 font-mono">
                   {delivery.reference || `OUT/${delivery.id}`}
                 </h1>
                 <StatusBadge status={delivery.status} />
               </div>
-              <p className="text-xs text-zinc-400 mt-0.5">Outbound Customer Dispatch & Order Fulfillment</p>
+              <p className="text-xs sm:text-sm text-zinc-400 mt-1">Outbound Customer Dispatch & Order Fulfillment</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-3 self-start sm:self-auto">
             {canAdvance && (
               <Button
                 id="delivery-advance-btn"
@@ -178,7 +178,7 @@ export default function DeliveryDetail() {
                 size="sm"
                 onClick={handleAdvance}
                 disabled={advancing}
-                className="border-zinc-800 bg-zinc-900/60 text-zinc-200 hover:bg-zinc-800 h-9 text-xs transition-colors"
+                className="border-zinc-800 bg-zinc-900/60 text-zinc-200 hover:bg-zinc-800 h-9 px-4 text-xs transition-colors rounded-lg"
               >
                 {advancing ? (
                   <span className="flex items-center gap-1.5">
@@ -200,7 +200,7 @@ export default function DeliveryDetail() {
                 size="sm"
                 onClick={handleValidate}
                 disabled={validating}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium h-9 text-xs transition-colors"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium h-9 px-4 text-xs transition-colors rounded-lg"
               >
                 {validating ? (
                   <span className="flex items-center gap-1.5">
@@ -221,73 +221,73 @@ export default function DeliveryDetail() {
         {/* Feedback Banner */}
         {result && (
           <div
-            className={`flex items-start gap-2.5 p-3 rounded-lg border text-xs ${
+            className={`flex items-start gap-2.5 p-4 rounded-xl border text-xs sm:text-sm ${
               result.success
                 ? 'border-emerald-500/20 bg-emerald-950/20 text-emerald-400'
                 : 'border-red-500/20 bg-red-950/20 text-red-400'
             }`}
           >
             {result.success ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
+              <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-emerald-400 mt-0.5" />
             ) : (
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
+              <AlertCircle className="h-4.5 w-4.5 shrink-0 text-red-400 mt-0.5" />
             )}
             <span className="leading-relaxed">{result.message}</span>
           </div>
         )}
 
         {/* Fulfillment Pipeline Stepper Card */}
-        <Card className="border-zinc-800/80 bg-zinc-900/40 shadow-sm p-4 sm:p-6">
+        <Card className="border-zinc-800/80 bg-zinc-900/40 shadow-sm p-6 sm:p-8">
           <Stepper current={delivery.status} />
         </Card>
 
         {/* Metadata Card */}
-        <Card className="border-zinc-800/80 bg-zinc-900/40 shadow-sm">
-          <CardHeader className="pb-3 border-b border-zinc-800/60">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+        <Card className="border-zinc-800/80 bg-zinc-900/40 shadow-sm p-6 sm:p-7">
+          <div className="pb-4 border-b border-zinc-800/80 mb-5">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Delivery Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            </h3>
+          </div>
+          <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-xs sm:text-sm">
               <div>
-                <span className="text-zinc-500 block text-[11px] uppercase tracking-wider mb-1">
+                <span className="text-zinc-500 block text-[11px] uppercase tracking-wider mb-1.5">
                   Customer / Destination
                 </span>
-                <span className="font-semibold text-zinc-100 flex items-center gap-1.5">
-                  <Truck className="h-3.5 w-3.5 text-zinc-400" />
+                <span className="font-semibold text-zinc-100 flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-zinc-400" />
                   {delivery.customer || '—'}
                 </span>
               </div>
               <div>
-                <span className="text-zinc-500 block text-[11px] uppercase tracking-wider mb-1">
+                <span className="text-zinc-500 block text-[11px] uppercase tracking-wider mb-1.5">
                   Fulfillment Warehouse
                 </span>
-                <span className="text-zinc-200 flex items-center gap-1.5">
-                  <Building2 className="h-3.5 w-3.5 text-zinc-400" />
+                <span className="text-zinc-200 flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-zinc-400" />
                   {delivery.warehouse_name || `Warehouse ${delivery.warehouse_id}`}
                 </span>
               </div>
               <div>
-                <span className="text-zinc-500 block text-[11px] uppercase tracking-wider mb-1">
+                <span className="text-zinc-500 block text-[11px] uppercase tracking-wider mb-1.5">
                   Order Date
                 </span>
-                <span className="text-zinc-200 font-mono text-[11px] flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-zinc-400" />
+                <span className="text-zinc-200 font-mono text-xs flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-zinc-400" />
                   {delivery.created_at ? new Date(delivery.created_at).toLocaleString() : '—'}
                 </span>
               </div>
               <div>
-                <span className="text-zinc-500 block text-[11px] uppercase tracking-wider mb-1">
+                <span className="text-zinc-500 block text-[11px] uppercase tracking-wider mb-1.5">
                   Shipping Notes
                 </span>
-                <span className="text-zinc-300 italic flex items-center gap-1.5">
-                  <FileText className="h-3.5 w-3.5 text-zinc-400 not-italic" />
+                <span className="text-zinc-300 italic flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-zinc-400 not-italic" />
                   {delivery.notes || 'No instructions provided'}
                 </span>
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
         {/* Lines Table */}
