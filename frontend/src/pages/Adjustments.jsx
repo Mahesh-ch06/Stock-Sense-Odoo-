@@ -131,7 +131,7 @@ export default function Adjustments() {
 
   return (
     <Layout title="Adjustments">
-      <div className="space-y-6">
+      <div className="space-y-8">
         <PageHeader
           title="Inventory Adjustments"
           description="Cycle counts, physical audit reconciliation, and stock corrections"
@@ -149,17 +149,17 @@ export default function Adjustments() {
 
         {notice && (
           <div
-            className={`flex items-start justify-between gap-3 p-3.5 rounded-lg border text-xs ${
+            className={`flex items-start justify-between gap-3 p-4 rounded-xl border text-xs sm:text-sm ${
               notice.type === 'success'
                 ? 'border-emerald-500/20 bg-emerald-950/20 text-emerald-400'
                 : 'border-red-500/20 bg-red-950/20 text-red-400'
             }`}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               {notice.type === 'success' ? (
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-emerald-400" />
               ) : (
-                <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+                <AlertCircle className="h-4.5 w-4.5 shrink-0 text-red-400" />
               )}
               <span>{notice.message}</span>
             </div>
@@ -167,28 +167,28 @@ export default function Adjustments() {
               onClick={() => setNotice(null)}
               className="text-zinc-500 hover:text-zinc-300 transition-colors"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         )}
 
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="relative w-full sm:w-88">
+            <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-500" />
             <Input
               id="adjustment-search"
               placeholder="Search product, SKU, or location…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-9 text-xs bg-zinc-900/60 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-zinc-600"
+              className="pl-10 h-10 text-xs sm:text-sm bg-zinc-900/60 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-zinc-600 rounded-lg"
             />
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={fetchAdjustments}
-            className="border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100 h-9 text-xs transition-colors self-start sm:self-auto"
+            className="border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100 h-10 px-4 text-xs transition-colors self-start sm:self-auto rounded-lg"
           >
             <RefreshCw className="h-3.5 w-3.5 mr-1.5 text-zinc-400" />
             Refresh
@@ -200,27 +200,27 @@ export default function Adjustments() {
             <Loader2 className="h-6 w-6 text-zinc-500 animate-spin" />
           </div>
         ) : (
-          <Card className="border-zinc-800/80 bg-zinc-900/40 overflow-hidden shadow-sm">
+          <Card className="border-zinc-800/80 bg-zinc-900/40 overflow-hidden shadow-sm p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b border-zinc-800/80 bg-zinc-900/60 text-zinc-400 uppercase tracking-wider font-medium text-[11px]">
-                    <th className="py-3 px-4">Date & Time</th>
-                    <th className="py-3 px-4">Product</th>
-                    <th className="py-3 px-4">SKU</th>
-                    <th className="py-3 px-4">Location</th>
-                    <th className="py-3 px-4 text-right">System Stock</th>
-                    <th className="py-3 px-4 text-right">Counted</th>
-                    <th className="py-3 px-4 text-right">Variance</th>
-                    <th className="py-3 px-4">Reconciled By</th>
+                    <th className="py-3.5 px-5">Date & Time</th>
+                    <th className="py-3.5 px-5">Product</th>
+                    <th className="py-3.5 px-5">SKU</th>
+                    <th className="py-3.5 px-5">Location</th>
+                    <th className="py-3.5 px-5 text-right">System Stock</th>
+                    <th className="py-3.5 px-5 text-right">Counted</th>
+                    <th className="py-3.5 px-5 text-right">Variance</th>
+                    <th className="py-3.5 px-5">Reconciled By</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/50">
                   {filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-12 text-center text-zinc-500">
-                        <Scale className="h-8 w-8 mx-auto mb-2 text-zinc-600 stroke-[1.5]" />
-                        <p className="text-xs">No inventory adjustments found</p>
+                      <td colSpan={8} className="py-16 text-center text-zinc-500">
+                        <Scale className="h-9 w-9 mx-auto mb-2 text-zinc-600 stroke-[1.5]" />
+                        <p className="text-sm">No inventory adjustments found</p>
                       </td>
                     </tr>
                   ) : (
@@ -228,46 +228,46 @@ export default function Adjustments() {
                       const delta = (a.counted_qty ?? 0) - (a.system_qty_at_time ?? 0);
                       return (
                         <tr key={a.id} className="hover:bg-zinc-800/30 transition-colors">
-                          <td className="py-3 px-4 text-zinc-500 font-mono text-[11px] whitespace-nowrap">
+                          <td className="py-4 px-5 text-zinc-500 font-mono text-[11.5px] whitespace-nowrap">
                             {a.created_at ? new Date(a.created_at).toLocaleString() : '—'}
                           </td>
-                          <td className="py-3 px-4 font-medium text-zinc-100 whitespace-nowrap">
+                          <td className="py-4 px-5 font-medium text-zinc-100 whitespace-nowrap">
                             {a.product_name}
                           </td>
-                          <td className="py-3 px-4 font-mono text-[11px] text-zinc-400 whitespace-nowrap">
+                          <td className="py-4 px-5 font-mono text-xs text-zinc-400 whitespace-nowrap">
                             {a.sku}
                           </td>
-                          <td className="py-3 px-4 whitespace-nowrap">
-                            <span className="inline-flex items-center gap-1.5 text-zinc-300 font-mono text-[11px]">
-                              <MapPin className="h-3 w-3 text-zinc-500" />
+                          <td className="py-4 px-5 whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1.5 text-zinc-300 font-mono text-xs">
+                              <MapPin className="h-3.5 w-3.5 text-zinc-500" />
                               {a.location_name}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-right font-mono text-zinc-400">
+                          <td className="py-4 px-5 text-right font-mono text-zinc-400">
                             {a.system_qty_at_time ?? 0}
                           </td>
-                          <td className="py-3 px-4 text-right font-mono font-medium text-zinc-100">
+                          <td className="py-4 px-5 text-right font-mono font-medium text-zinc-100">
                             {a.counted_qty}
                           </td>
-                          <td className="py-3 px-4 text-right whitespace-nowrap">
+                          <td className="py-4 px-5 text-right whitespace-nowrap">
                             {delta > 0 ? (
-                              <Badge variant="success" className="font-mono text-[11px]">
-                                <TrendingUp className="h-3 w-3 mr-1" />
+                              <Badge variant="success" className="font-mono text-xs px-2.5 py-0.5">
+                                <TrendingUp className="h-3.5 w-3.5 mr-1" />
                                 +{delta} gain
                               </Badge>
                             ) : delta < 0 ? (
-                              <Badge variant="destructive" className="font-mono text-[11px]">
-                                <TrendingDown className="h-3 w-3 mr-1" />
+                              <Badge variant="destructive" className="font-mono text-xs px-2.5 py-0.5">
+                                <TrendingDown className="h-3.5 w-3.5 mr-1" />
                                 {delta} loss
                               </Badge>
                             ) : (
-                              <Badge variant="secondary" className="font-mono text-[11px]">
-                                <Equal className="h-3 w-3 mr-1" />
+                              <Badge variant="secondary" className="font-mono text-xs px-2.5 py-0.5">
+                                <Equal className="h-3.5 w-3.5 mr-1" />
                                 0 match
                               </Badge>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-zinc-400 whitespace-nowrap">
+                          <td className="py-4 px-5 text-zinc-400 whitespace-nowrap text-xs">
                             {a.created_by_name || 'System'}
                           </td>
                         </tr>
@@ -284,44 +284,44 @@ export default function Adjustments() {
       {/* New Adjustment Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-150"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="w-full max-w-md rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl p-6 space-y-5"
+            className="w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-900 shadow-2xl p-7 space-y-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-200">
-                  <ClipboardCheck className="h-4 w-4" />
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-200">
+                  <ClipboardCheck className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-100">Physical Stock Count</h3>
-                  <p className="text-[11px] text-zinc-400">Reconcile variance and sync ledger</p>
+                  <h3 className="text-base font-semibold text-zinc-100">Physical Stock Count</h3>
+                  <p className="text-xs text-zinc-400 mt-0.5">Reconcile variance and sync ledger</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-zinc-500 hover:text-zinc-300 transition-colors"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4.5 w-4.5" />
               </button>
             </div>
 
             {modalError && (
-              <div className="flex items-start gap-2 p-2.5 rounded-lg border border-red-500/20 bg-red-950/20 text-xs text-red-400">
+              <div className="flex items-start gap-2.5 p-3 rounded-lg border border-red-500/20 bg-red-950/20 text-xs text-red-400">
                 <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
                 <span>{modalError}</span>
               </div>
             )}
 
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Target Product *</label>
+            <form onSubmit={handleCreate} className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-xs sm:text-sm font-medium text-zinc-300">Target Product *</label>
                 <select
                   id="adjustment-product"
-                  className="w-full h-9 rounded-md border border-zinc-800 bg-zinc-950/50 px-3 text-xs text-zinc-100 focus:outline-hidden focus:ring-1 focus:ring-zinc-600"
+                  className="w-full h-10 rounded-lg border border-zinc-800 bg-zinc-950/50 px-3.5 text-xs sm:text-sm text-zinc-100 focus:outline-hidden focus:ring-1 focus:ring-zinc-600"
                   value={form.product_id}
                   onChange={(e) => setForm((f) => ({ ...f, product_id: e.target.value }))}
                   required
@@ -335,11 +335,11 @@ export default function Adjustments() {
                 </select>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Storage Location / Bin *</label>
+              <div className="space-y-2">
+                <label className="text-xs sm:text-sm font-medium text-zinc-300">Storage Location / Bin *</label>
                 <select
                   id="adjustment-location"
-                  className="w-full h-9 rounded-md border border-zinc-800 bg-zinc-950/50 px-3 text-xs text-zinc-100 focus:outline-hidden focus:ring-1 focus:ring-zinc-600"
+                  className="w-full h-10 rounded-lg border border-zinc-800 bg-zinc-950/50 px-3.5 text-xs sm:text-sm text-zinc-100 focus:outline-hidden focus:ring-1 focus:ring-zinc-600"
                   value={form.location_id}
                   onChange={(e) => setForm((f) => ({ ...f, location_id: e.target.value }))}
                   required
@@ -354,8 +354,8 @@ export default function Adjustments() {
                 </select>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Physical Counted Quantity *</label>
+              <div className="space-y-2">
+                <label className="text-xs sm:text-sm font-medium text-zinc-300">Physical Counted Quantity *</label>
                 <Input
                   id="adjustment-counted-qty"
                   type="number"
@@ -363,21 +363,21 @@ export default function Adjustments() {
                   placeholder="e.g. 75"
                   value={form.counted_qty}
                   onChange={(e) => setForm((f) => ({ ...f, counted_qty: e.target.value }))}
-                  className="bg-zinc-950/50 border-zinc-800 text-zinc-100 text-xs h-9 focus-visible:ring-zinc-600"
+                  className="bg-zinc-950/50 border-zinc-800 text-zinc-100 text-xs sm:text-sm h-10 rounded-lg focus-visible:ring-zinc-600"
                   required
                 />
-                <p className="text-[10.5px] text-zinc-500 leading-tight pt-0.5">
+                <p className="text-[11px] text-zinc-500 leading-normal pt-1">
                   An immutable reconciliation entry will be written to the stock ledger and local balance updated atomically.
                 </p>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-zinc-800/80">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800/80">
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowModal(false)}
-                  className="text-zinc-400 hover:text-zinc-200"
+                  className="text-zinc-400 hover:text-zinc-200 h-9 px-4"
                 >
                   Cancel
                 </Button>
@@ -386,11 +386,11 @@ export default function Adjustments() {
                   type="submit"
                   size="sm"
                   disabled={saving}
-                  className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-xs h-9 transition-colors"
+                  className="bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-xs sm:text-sm h-9 px-4 transition-colors"
                 >
                   {saving ? (
                     <span className="flex items-center gap-1.5">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       Reconciling…
                     </span>
                   ) : (
